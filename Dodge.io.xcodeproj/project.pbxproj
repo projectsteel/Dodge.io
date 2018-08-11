@@ -15,9 +15,13 @@
 		3FF3CCE9211F585F0032FD8D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FF3CCE7211F585F0032FD8D /* Main.storyboard */; };
 		3FF3CCEB211F58610032FD8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3FF3CCEA211F58610032FD8D /* Assets.xcassets */; };
 		3FF3CCEE211F58610032FD8D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3FF3CCEC211F58610032FD8D /* LaunchScreen.storyboard */; };
+		3FF3CCF8211F59750032FD8D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3FF3CCF7211F59750032FD8D /* GoogleService-Info.plist */; };
+		CFCF0C3AA9A9FD82A6FF94F3 /* Pods_Dodge_io.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1708ADA7CFF8BA73EB451363 /* Pods_Dodge_io.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1708ADA7CFF8BA73EB451363 /* Pods_Dodge_io.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dodge_io.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		229B84B93296A52EF005BD6D /* Pods-Dodge.io.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dodge.io.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Dodge.io/Pods-Dodge.io.debug.xcconfig"; sourceTree = "<group>"; };
 		3FF3CCDA211F585F0032FD8D /* Dodge.io.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dodge.io.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FF3CCDD211F585F0032FD8D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3FF3CCDF211F585F0032FD8D /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -28,6 +32,8 @@
 		3FF3CCEA211F58610032FD8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3FF3CCED211F58610032FD8D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3FF3CCEF211F58610032FD8D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3FF3CCF7211F59750032FD8D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		A83DC314DF02A02F854E7EC1 /* Pods-Dodge.io.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dodge.io.release.xcconfig"; path = "Pods/Target Support Files/Pods-Dodge.io/Pods-Dodge.io.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFCF0C3AA9A9FD82A6FF94F3 /* Pods_Dodge_io.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +53,8 @@
 			children = (
 				3FF3CCDC211F585F0032FD8D /* Dodge.io */,
 				3FF3CCDB211F585F0032FD8D /* Products */,
+				D8723FFD712A0D255EF739C0 /* Pods */,
+				58FB1EFD5336EDC63E803D52 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,8 +78,26 @@
 				3FF3CCEA211F58610032FD8D /* Assets.xcassets */,
 				3FF3CCEC211F58610032FD8D /* LaunchScreen.storyboard */,
 				3FF3CCEF211F58610032FD8D /* Info.plist */,
+				3FF3CCF7211F59750032FD8D /* GoogleService-Info.plist */,
 			);
 			path = Dodge.io;
+			sourceTree = "<group>";
+		};
+		58FB1EFD5336EDC63E803D52 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1708ADA7CFF8BA73EB451363 /* Pods_Dodge_io.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D8723FFD712A0D255EF739C0 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				229B84B93296A52EF005BD6D /* Pods-Dodge.io.debug.xcconfig */,
+				A83DC314DF02A02F854E7EC1 /* Pods-Dodge.io.release.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -80,9 +107,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3FF3CCF2211F58610032FD8D /* Build configuration list for PBXNativeTarget "Dodge.io" */;
 			buildPhases = (
+				E8D8546637D3B095DAD921B3 /* [CP] Check Pods Manifest.lock */,
 				3FF3CCD6211F585F0032FD8D /* Sources */,
 				3FF3CCD7211F585F0032FD8D /* Frameworks */,
 				3FF3CCD8211F585F0032FD8D /* Resources */,
+				9C46F960583468CF66F134F1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -136,10 +165,52 @@
 				3FF3CCEB211F58610032FD8D /* Assets.xcassets in Resources */,
 				3FF3CCEE211F58610032FD8D /* LaunchScreen.storyboard in Resources */,
 				3FF3CCE2211F585F0032FD8D /* Actions.sks in Resources */,
+				3FF3CCF8211F59750032FD8D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		9C46F960583468CF66F134F1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Dodge.io/Pods-Dodge.io-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Dodge.io/Pods-Dodge.io-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E8D8546637D3B095DAD921B3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Dodge.io-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		3FF3CCD6211F585F0032FD8D /* Sources */ = {
@@ -290,11 +361,13 @@
 		};
 		3FF3CCF3211F58610032FD8D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 229B84B93296A52EF005BD6D /* Pods-Dodge.io.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 22N24BF9J6;
 				INFOPLIST_FILE = Dodge.io/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -308,11 +381,13 @@
 		};
 		3FF3CCF4211F58610032FD8D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A83DC314DF02A02F854E7EC1 /* Pods-Dodge.io.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 22N24BF9J6;
 				INFOPLIST_FILE = Dodge.io/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
