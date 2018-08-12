@@ -51,7 +51,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func generateRandomNumber(min: Int, max: Int) -> Int {
-        let randomNum = Float.random(in:min...max)
+        let randomNum = Int.random(in: min...max)
         
         return randomNum
     }
