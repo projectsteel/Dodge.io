@@ -28,14 +28,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.runner = self.childNode(withName: "runner") as? SKSpriteNode
         
-        //createWall()
+        createWall()
         
         
     }
-   
-    func createWall(){
+    
+    func createWall() {
+       
+       let breakPoint = generateRandomNumber(min: Int(-self.size.width/2 + 5), max: Int(self.size.width/2 - 5))
+        
         let wall = SKSpriteNode(color: .cyan, size: CGSize(width: self.size.width, height: 5))
+        
         self.addChild(wall)
+        
+        let moveUp = SKAction.moveBy(x: 0, y: -(self.size.height/2), duration: 5)
+        
+        wall.run(moveUp) {
+            wall.removeFromParent()
+        }
+        
+        
+    }
+    
+    func generateRandomNumber(min: Int, max: Int) -> Int {
+        let randomNum = Float.random(in:min...max)
+        
+        return randomNum
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -47,14 +65,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let leftRect = CGRect(x: -self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
             if leftRect.contains(point){
             
-                print("left Touched")
                 runner?.physicsBody?.applyForce(CGVector(dx: -7000, dy: 0))
             }
         
             let rightRect = CGRect(x: self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
             if rightRect.contains(point){
                 
-                print("right Touched")
                 
                 runner?.physicsBody?.applyForce(CGVector(dx: 7000, dy: 0))
             }
