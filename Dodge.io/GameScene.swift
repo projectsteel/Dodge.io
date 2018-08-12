@@ -27,28 +27,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.rightWall = self.childNode(withName: "rightWall") as? SKSpriteNode
         
         self.runner = self.childNode(withName: "runner") as? SKSpriteNode
-        
-        createWall()
-        
-        
     }
     
     func createWall() {
-       
-       let breakPoint = generateRandomNumber(min: Int(-self.size.width/2 + 5), max: Int(self.size.width/2 - 5))
         
-        let wall = SKSpriteNode(color: .cyan, size: CGSize(width: self.size.width, height: 5))
+        print(Int(self.size.width))
+        
+        let breakPoint = generateRandomNumber(min: 5, max: Int(self.size.width * 2))
+        
+        print(breakPoint)
+        
+        let wall = SKSpriteNode(color: .cyan, size: CGSize(width: breakPoint, height: 5))
+        
+        wall.position = CGPoint(x:-(self.size.width/2) , y: self.size.height/2 - 20)
         
         self.addChild(wall)
         
-        let moveUp = SKAction.moveBy(x: 0, y: -(self.size.height/2), duration: 5)
+        let moveUp = SKAction.moveBy(x: 0, y: -self.size.height, duration: 5)
         
-        wall.run(moveUp) {
+        wall.run(moveUp){
+            
             wall.removeFromParent()
         }
-        
-        
     }
+    
+    
+    
     
     func generateRandomNumber(min: Int, max: Int) -> Int {
         let randomNum = Int.random(in: min...max)
@@ -57,17 +61,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-   
+        createWall()
         if let touch = touches.first{
             
             let point = touch.preciseLocation(in: self.view)
             
             let leftRect = CGRect(x: -self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
             if leftRect.contains(point){
-            
+                
                 runner?.physicsBody?.applyForce(CGVector(dx: -7000, dy: 0))
             }
-        
+            
             let rightRect = CGRect(x: self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
             if rightRect.contains(point){
                 
@@ -78,7 +82,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-       
+        
         if let touch = touches.first{
             
             let point = touch.preciseLocation(in: self.view)
