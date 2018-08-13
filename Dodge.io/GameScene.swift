@@ -11,8 +11,8 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    var leftWall : SKSpriteNode?
-    var rightWall : SKSpriteNode?
+    var leftBarrier : SKSpriteNode?
+    var rightBarrier : SKSpriteNode?
     var runner : SKSpriteNode?
     
     var wallsCatagory : UInt32?
@@ -23,39 +23,48 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.physicsWorld.contactDelegate = self
         
-        self.leftWall = self.childNode(withName: "leftWall") as? SKSpriteNode
-        self.rightWall = self.childNode(withName: "rightWall") as? SKSpriteNode
+        self.leftBarrier
+ = self.childNode(withName: "leftWall") as? SKSpriteNode
+        self.rightBarrier
+ = self.childNode(withName: "rightWall") as? SKSpriteNode
         
         self.runner = self.childNode(withName: "runner") as? SKSpriteNode
     }
     
     func createWall() {
         
-        print(Int(self.size.width))
+        let breakPoint = generateRandomNumber(min: 5, max: Int(self.size.width) - 150)
         
-        let breakPoint = generateRandomNumber(min: 5, max: Int(self.size.width * 2))
+        let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: breakPoint, height: 5))
         
-        print(breakPoint)
+        let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width: self.size.width - (breakPoint + 140), height: 5))
         
-        let wall = SKSpriteNode(color: .cyan, size: CGSize(width: breakPoint, height: 5))
+        leftWall.position = CGPoint(x:(-(self.size.width/2) + leftWall.size.width/2) , y: self.size.height/2)
         
-        wall.position = CGPoint(x:-(self.size.width/2) , y: self.size.height/2 - 20)
+        rightWall.position = CGPoint(x: (self.size.width/2) - rightWall.size.width/2, y: self.size.height/2)
         
-        self.addChild(wall)
+        self.addChild(leftWall)
         
-        let moveUp = SKAction.moveBy(x: 0, y: -self.size.height, duration: 5)
+        self.addChild(rightWall)
         
-        wall.run(moveUp){
+        let moveDown = SKAction.moveBy(x: 0, y: -self.size.height, duration: 5)
+        
+        leftWall.run(moveDown){
             
-            wall.removeFromParent()
+            leftWall.removeFromParent()
+        }
+    
+        rightWall.run(moveDown){
+            
+            rightWall.removeFromParent()
         }
     }
     
     
     
     
-    func generateRandomNumber(min: Int, max: Int) -> Int {
-        let randomNum = Int.random(in: min...max)
+    func generateRandomNumber(min: Int, max: Int) -> CGFloat {
+        let randomNum = CGFloat(Int.random(in: min...max))
         
         return randomNum
     }
