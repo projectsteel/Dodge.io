@@ -104,16 +104,57 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		let moveDown = SKAction.moveBy(x: 0, y: -self.size.height, duration: 5)
 		
-		let moveLeft = Bool.random()
-	
+		var willMoveLeft = Bool.random()
+		
+		let differencePerTenthSec : CGFloat = 20
+		
+		let wallMoveTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
+			
+			if willMoveLeft{
+				
+				if leftWall.size.width > 5{
+					
+					rightWall.run(SKAction.resize(toWidth: rightWall.size.width + differencePerTenthSec, duration: 0.1))
+					
+					leftWall.run(SKAction.resize(toWidth: leftWall.size.width - differencePerTenthSec, duration: 0.1)){
+						
+						if leftWall.size.width <= 5{
+							
+							willMoveLeft = false
+						}
+					}
+					
+				}
+				
+			}else{
+				
+				if rightWall.size.width > 5{
+					
+					leftWall.run(SKAction.resize(toWidth: leftWall.size.width + differencePerTenthSec, duration: 0.1))
+					
+					rightWall.run(SKAction.resize(toWidth: rightWall.size.width - differencePerTenthSec, duration: 0.1)){
+						
+						if rightWall.size.width <= 5{
+							
+							willMoveLeft = true
+						}
+					}
+				}
+			}
+		}
+		
 		leftWall.run(moveDown){
 			
 			leftWall.removeFromParent()
+			
+			wallMoveTimer.invalidate()
 		}
 		
 		rightWall.run(moveDown){
 			
 			rightWall.removeFromParent()
+			
+			wallMoveTimer.invalidate()
 		}
 	}
 	
