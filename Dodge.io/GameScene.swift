@@ -76,7 +76,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: breakPoint, height: 5))
 		let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width: self.size.width - (breakPoint + 140), height: 5))
 		
-		leftWall.position = CGPoint(x:(-(self.size.width/2) + leftWall.size.width/2) , y: self.size.height/2)
+		leftWall.position = CGPoint(x:(-(self.size.width/2) + leftWall.size.width/2), y: self.size.height/2)
 		rightWall.position = CGPoint(x: (self.size.width/2) - rightWall.size.width/2, y: self.size.height/2)
 		
 		leftWall.physicsBody = SKPhysicsBody(rectangleOf: leftWall.size)
@@ -88,6 +88,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		rightWall.physicsBody?.collisionBitMask = 0x1 << 0
 		leftWall.physicsBody?.affectedByGravity = false
 		rightWall.physicsBody?.affectedByGravity = false
+		leftWall.physicsBody?.allowsRotation = false
+		rightWall.physicsBody?.allowsRotation = false
 		
 		self.addChild(leftWall)
 		self.addChild(rightWall)
@@ -162,8 +164,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
-		
+		print("contact")
 		
 	}
-	
 }
