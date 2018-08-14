@@ -25,8 +25,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.physicsWorld.contactDelegate = self
 		
-		self.leftBarrier = self.childNode(withName: "leftWall") as? SKSpriteNode
-		self.rightBarrier = self.childNode(withName: "rightWall") as? SKSpriteNode
+		self.leftBarrier = self.childNode(withName: "leftBarrier") as? SKSpriteNode
+		self.rightBarrier = self.childNode(withName: "rightBarrier") as? SKSpriteNode
+		
+		self.leftBarrier?.physicsBody?.categoryBitMask = barrierCatagory
+		self.rightBarrier?.physicsBody?.categoryBitMask = barrierCatagory
+		self.leftBarrier?.physicsBody?.contactTestBitMask = runnerCatagory
+		self.rightBarrier?.physicsBody?.contactTestBitMask = runnerCatagory
+		self.leftBarrier?.physicsBody?.collisionBitMask = runnerCatagory
+		self.rightBarrier?.physicsBody?.collisionBitMask = runnerCatagory
+		
 		
 		self.runner = self.childNode(withName: "runner") as? SKSpriteNode
 		
@@ -73,11 +81,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		let breakPoint = generateRandomNumber(min: 5, max: Int(self.size.width) - 150)
 		
-		let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: breakPoint, height: 5))
-		let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width: self.size.width - (breakPoint + 140), height: 5))
+		let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: 2 * breakPoint, height: 5))
+		let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width:2 * (self.size.width - (breakPoint + 140)), height: 5))
 		
-		leftWall.position = CGPoint(x:(-(self.size.width/2) + leftWall.size.width/2), y: self.size.height/2)
-		rightWall.position = CGPoint(x: (self.size.width/2) - rightWall.size.width/2, y: self.size.height/2)
+		leftWall.position = CGPoint(x:-(self.size.width/2), y: self.size.height/2)
+		rightWall.position = CGPoint(x:self.size.width/2, y: self.size.height/2)
 		
 		leftWall.physicsBody = SKPhysicsBody(rectangleOf: leftWall.size)
 		rightWall.physicsBody = SKPhysicsBody(rectangleOf: rightWall.size)
@@ -96,6 +104,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		let moveDown = SKAction.moveBy(x: 0, y: -self.size.height, duration: 5)
 		
+		let moveLeft = Bool.random()
+	
 		leftWall.run(moveDown){
 			
 			leftWall.removeFromParent()
