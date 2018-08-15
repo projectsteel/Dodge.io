@@ -43,7 +43,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.runner?.physicsBody?.collisionBitMask = barrierCatagory
 		
 		
-		self.generateWallTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
+		self.generateWallTimer = Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
 		
 		let runner = self.runner!
 		
@@ -81,8 +81,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		let breakPoint = generateRandomNumber(min: 5, max: Int(self.size.width) - 150)
 		
-		let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: 2 * breakPoint, height: 5))
-		let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width:2 * (self.size.width - (breakPoint + 140)), height: 5))
+		let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: 2 * breakPoint, height: 30))
+		let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width:2 * (self.size.width - (breakPoint + 140)), height: 30))
 		
 		leftWall.position = CGPoint(x:-(self.size.width/2), y: self.size.height/2)
 		rightWall.position = CGPoint(x:self.size.width/2, y: self.size.height/2)
@@ -215,7 +215,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
-		print("contact")
 		
+		if (contact.bodyB.categoryBitMask == runnerCatagory &&  contact.bodyB.categoryBitMask == wallsCatagory) || (contact.bodyA.categoryBitMask == runnerCatagory && contact.bodyB.categoryBitMask == wallsCatagory){
+			
+			print(1)
+			
+			self.scene?.isPaused = true
+			
+			self.generateWallTimer?.invalidate()
+			
+			print(contact.bodyA, contact.bodyB)
+		}
 	}
 }
