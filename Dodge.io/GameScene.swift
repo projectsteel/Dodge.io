@@ -5,7 +5,6 @@
 //  Created by Jamie Pickar on 8/11/18.
 //  Copyright © 2018 Project Steel. All rights reserved.
 //
-
 import SpriteKit
 import GameplayKit
 
@@ -14,8 +13,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var leftBarrier : SKSpriteNode?
 	var rightBarrier : SKSpriteNode?
 	var runner : SKSpriteNode?
-	var leftWall : SKSpriteNode?
-	var rightWall : SKSpriteNode?
+	
+	var walls = [SKSpriteNode]()
 	
 	var wallsCatagory : UInt32 = 0x1 << 1
 	var runnerCatagory : UInt32 = 0x1 << 2
@@ -81,30 +80,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	@objc func createWall() {
 		
-		let breakPoint = generateRandomNumber(min: 5, max: Int(self.size.width) - 150)
+		let breakPoint = generateRandomNumber(min: 5, max: Int(self.size.width) - 175)
 		
-		 leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: 2 * breakPoint, height: 30))
-		 rightWall = SKSpriteNode(color: .cyan, size: CGSize(width:2 * (self.size.width - (breakPoint + 140)), height: 30))
+		let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: 2 * breakPoint, height: 30))
+		let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width:2 * (self.size.width - (breakPoint + 170)), height: 30))
 		
-		leftWall!.position = CGPoint(x:-(self.size.width/2), y: self.size.height/2)
-		rightWall!.position = CGPoint(x:self.size.width/2, y: self.size.height/2)
+		leftWall.position = CGPoint(x:-(self.size.width/2), y: self.size.height/2)
+		rightWall.position = CGPoint(x:self.size.width/2, y: self.size.height/2)
 		
-		leftWall!.physicsBody = SKPhysicsBody(rectangleOf: leftWall!.size)
-		rightWall!.physicsBody = SKPhysicsBody(rectangleOf: rightWall!.size)
+		leftWall.physicsBody = SKPhysicsBody(rectangleOf: leftWall.size)
+		rightWall.physicsBody = SKPhysicsBody(rectangleOf: rightWall.size)
 		
-		leftWall!.physicsBody?.isDynamic = true
-		rightWall!.physicsBody?.isDynamic = true
-		leftWall!.physicsBody?.categoryBitMask = wallsCatagory
-		rightWall!.physicsBody?.categoryBitMask = wallsCatagory
-		leftWall!.physicsBody?.collisionBitMask = 0x1 << 0
-		rightWall!.physicsBody?.collisionBitMask = 0x1 << 0
-		leftWall!.physicsBody?.affectedByGravity = false
-		rightWall!.physicsBody?.affectedByGravity = false
-		leftWall!.physicsBody?.allowsRotation = false
-		rightWall!.physicsBody?.allowsRotation = false
+		leftWall.physicsBody?.categoryBitMask = wallsCatagory
+		rightWall.physicsBody?.categoryBitMask = wallsCatagory
+		leftWall.physicsBody?.collisionBitMask = 0x1 << 0
+		rightWall.physicsBody?.collisionBitMask = 0x1 << 0
+		leftWall.physicsBody?.affectedByGravity = false
+		rightWall.physicsBody?.affectedByGravity = false
+		leftWall.physicsBody?.allowsRotation = false
+		rightWall.physicsBody?.allowsRotation = false
 		
-		self.addChild(leftWall!)
-		self.addChild(rightWall!)
+		self.addChild(leftWall)
+		self.addChild(rightWall)
+		
+		self.walls.append(leftWall)
+		let leftWallIndex = walls.count - 1
+		
+		self.walls.append(rightWall)
+		let rightWallIndex = walls.count - 1
+		
+		
+		
 		
 		let moveDown = SKAction.moveBy(x: 0, y: -self.size.height, duration: 5)
 		
@@ -116,13 +122,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			if willMoveLeft{
 				
-				if self.leftWall!.size.width > CGFloat(5){
+				if leftWall.size.width > 5{
 					
-					self.rightWall!.run(SKAction.resize(toWidth: self.rightWall!.size.width + differencePerTenthSec, duration: 0.1))
+					rightWall.run(SKAction.resize(toWidth: rightWall.size.width + differencePerTenthSec, duration: 0.1))
 					
-					self.leftWall!.run(SKAction.resize(toWidth: self.leftWall!.size.width - differencePerTenthSec, duration: 0.1)){
+					leftWall.run(SKAction.resize(toWidth: leftWall.size.width - differencePerTenthSec, duration: 0.1)){
 						
-						if self.leftWall!.size.width <= 5{
+						if leftWall.size.width <= 5{
 							
 							willMoveLeft = false
 						}
@@ -132,13 +138,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 			}else{
 				
-				if self.rightWall!.size.width > 5{
+				if rightWall.size.width > 5{
 					
-					self.leftWall!.run(SKAction.resize(toWidth: self.leftWall!.size.width + differencePerTenthSec, duration: 0.1))
+					leftWall.run(SKAction.resize(toWidth: leftWall.size.width + differencePerTenthSec, duration: 0.1))
 					
-					self.rightWall!.run(SKAction.resize(toWidth: self.rightWall!.size.width - differencePerTenthSec, duration: 0.1)){
+					rightWall.run(SKAction.resize(toWidth: rightWall.size.width - differencePerTenthSec, duration: 0.1)){
 						
-						if self.rightWall!.size.width <= 5{
+						if rightWall.size.width <= 5{
 							
 							willMoveLeft = true
 						}
@@ -147,18 +153,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 		}
 		
-		leftWall!.run(moveDown){
+		leftWall.run(moveDown){
 			
-			self.leftWall!.removeFromParent()
+			leftWall.removeFromParent()
 			
 			wallMoveTimer.invalidate()
+			
+			self.walls.remove(at: leftWallIndex)
 		}
 		
-		rightWall!.run(moveDown){
+		rightWall.run(moveDown){
 			
-			self.rightWall!.removeFromParent()
+			rightWall.removeFromParent()
 			
 			wallMoveTimer.invalidate()
+			
+			self.walls.remove(at: rightWallIndex)
 		}
 	}
 	
@@ -169,8 +179,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		return randomNum
 	}
-	
-	
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		
@@ -231,10 +239,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			self.generateWallTimer?.invalidate()
 			
 			print(contact.bodyA, contact.bodyB)
+			
+			let label =  SKLabelNode(text: "Game Over!")
+			
+			label.position = CGPoint(x: 0, y: 0)
+			
+			label.fontSize = 120
+			
+			self.addChild(label)
 		}
 	}
 
 	override func didSimulatePhysics() {
-		
+		for wall in self.walls{
+			
+			wall.physicsBody = SKPhysicsBody(rectangleOf: wall.size)
+			
+			
+			wall.physicsBody?.categoryBitMask = wallsCatagory
+			
+			wall.physicsBody?.collisionBitMask = 0x1 << 0
+			
+			wall.physicsBody?.affectedByGravity = false
+			
+			wall.physicsBody?.allowsRotation = false
+			
+		}
 	}
 }
