@@ -46,6 +46,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.generateWallTimer = Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
 		
+		
+		
+	}
+	
+	func createBarriers(){
+	
 		let runner = self.runner!
 		
 		let upBarrier = SKSpriteNode(color: .clear, size: CGSize(width: self.size.width, height: 0.5))
@@ -75,7 +81,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.addChild(upBarrier)
 		self.addChild(downBarrier)
-		
+	
 	}
 	
 	@objc func createWall() {
@@ -201,6 +207,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 	}
 	
+	func endGame(){
+		
+		self.scene?.isPaused = true
+		self.generateWallTimer?.invalidate()
+		
+		
+		let label =  SKLabelNode(text: "Game Over!")
+		label.position = CGPoint(x: 0, y: 0)
+		label.fontSize = 120
+		self.addChild(label)
+		
+		let playButton = SKSpriteNode(imageNamed:"play-button.png")
+		
+		playButton.position = CGPoint(x: 0, y: -400)
+		
+		playButton.size = CGSize(width: 200, height: 200)
+		
+		self.addChild(playButton)
+	}
+	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		
 		if let touch = touches.first{
@@ -232,21 +258,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		if (contact.bodyB.categoryBitMask == runnerCatagory &&  contact.bodyB.categoryBitMask == wallsCatagory) || (contact.bodyA.categoryBitMask == runnerCatagory && contact.bodyB.categoryBitMask == wallsCatagory){
 			
-			print(1)
-			
-			self.scene?.isPaused = true
-			
-			self.generateWallTimer?.invalidate()
-			
-			print(contact.bodyA, contact.bodyB)
-			
-			let label =  SKLabelNode(text: "Game Over!")
-			
-			label.position = CGPoint(x: 0, y: 0)
-			
-			label.fontSize = 120
-			
-			self.addChild(label)
+			endGame()
 		}
 	}
 
@@ -254,16 +266,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		for wall in self.walls{
 			
 			wall.physicsBody = SKPhysicsBody(rectangleOf: wall.size)
-			
-			
 			wall.physicsBody?.categoryBitMask = wallsCatagory
-			
 			wall.physicsBody?.collisionBitMask = 0x1 << 0
-			
 			wall.physicsBody?.affectedByGravity = false
-			
 			wall.physicsBody?.allowsRotation = false
-			
 		}
 	}
 }
