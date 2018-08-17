@@ -10,5 +10,6 @@ target 'Dodge.io' do
   # Pods for Dodge.io
   
   pod 'Firebase/Core'
+  pod 'Firebase/AdMob'
 
 end

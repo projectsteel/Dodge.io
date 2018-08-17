@@ -9,10 +9,13 @@
 import UIKit
 import SpriteKit
 import GameplayKit
+import GoogleMobileAds
 
 class GameViewController: UIViewController {
 
     @IBOutlet weak var sceneView: SKView!
+    
+    @IBOutlet weak var bannerView: GADBannerView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +36,10 @@ class GameViewController: UIViewController {
             
             sceneView.showsFPS = true
             sceneView.showsNodeCount = true
+        
+        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.rootViewController = self
+        bannerView.load(GADRequest())
         
     }
 

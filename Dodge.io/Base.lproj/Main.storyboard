@@ -18,7 +18,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NIS-sU-k21">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NIS-sU-k21" customClass="GADBannerView">
                                 <rect key="frame" x="0.0" y="617" width="375" height="50"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
@@ -43,6 +43,7 @@
                         <viewLayoutGuide key="safeArea" id="4qk-I5-YsI"/>
                     </view>
                     <connections>
+                        <outlet property="bannerView" destination="NIS-sU-k21" id="wvA-aV-3K9"/>
                         <outlet property="sceneView" destination="kIM-pK-F3u" id="JNo-v3-PmS"/>
                     </connections>
                 </viewController>
