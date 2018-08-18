@@ -51,7 +51,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func createBarriers(){
-	
+		
 		let runner = self.runner!
 		
 		let upBarrier = SKSpriteNode(color: .clear, size: CGSize(width: self.size.width, height: 0.5))
@@ -81,7 +81,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.addChild(upBarrier)
 		self.addChild(downBarrier)
-	
+		
 	}
 	
 	@objc func createWall() {
@@ -187,22 +187,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		
-		if let touch = touches.first{
+		if (self.scene?.isPaused)!{
 			
-			let point = touch.preciseLocation(in: self.view)
-			
-			let leftRect = CGRect(x: -self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
-			if leftRect.contains(point){
+			if let touchLocation = touches.first?.location(in: self){
 				
-				runner?.physicsBody?.applyForce(CGVector(dx: -7000, dy: 0))
+				let nodesAtLocation = nodes(at: touchLocation)
+				
+				for node in nodesAtLocation{
+					if node.name == "Play Button"{
+						
+						self.resetGame()
+						
+					}
+				}
 			}
 			
-			let rightRect = CGRect(x: self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
-			if rightRect.contains(point){
+		}else{
+			
+			if let touch = touches.first{
 				
+				let point = touch.preciseLocation(in: self.view)
 				
-				runner?.physicsBody?.applyForce(CGVector(dx: 7000, dy: 0))
+				let leftRect = CGRect(x: -self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
+				if leftRect.contains(point){
+					
+					runner?.physicsBody?.applyForce(CGVector(dx: -7000, dy: 0))
+				}
+				
+				let rightRect = CGRect(x: self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
+				if rightRect.contains(point){
+					
+					
+					runner?.physicsBody?.applyForce(CGVector(dx: 7000, dy: 0))
+				}
 			}
 		}
 	}
@@ -213,18 +230,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.generateWallTimer?.invalidate()
 		
 		
-		let label =  SKLabelNode(text: "Game Over!")
-		label.position = CGPoint(x: 0, y: 0)
-		label.fontSize = 120
-		self.addChild(label)
+		let gameOverLabel =  SKLabelNode(text: "Game Over!")
+		gameOverLabel.name = "Game Over Label"
+		gameOverLabel.position = CGPoint(x: 0, y: 0)
+		gameOverLabel.fontSize = 120
+		
+		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
+			
+			self.addChild(gameOverLabel)
+			
+		}
+		
 		
 		let playButton = SKSpriteNode(imageNamed:"play-button.png")
-		
+		playButton.name = "Play Button"
 		playButton.position = CGPoint(x: 0, y: -400)
-		
 		playButton.size = CGSize(width: 200, height: 200)
 		
 		self.addChild(playButton)
+		
+	}
+	
+	func resetGame(){
+		
+		let nodes = self.children
+		
+		for node in nodes{
+			if node.physicsBody?.categoryBitMask == wallsCatagory || node.name == "Play Button" || node.name == "Game Over Label"{
+				
+				node.removeFromParent()
+			}
+		}
+		
+		self.scene?.isPaused = false
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -261,7 +299,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			endGame()
 		}
 	}
-
+	
 	override func didSimulatePhysics() {
 		for wall in self.walls{
 			
