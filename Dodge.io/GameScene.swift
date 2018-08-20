@@ -14,7 +14,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var rightBarrier : SKSpriteNode?
 	var runner : SKSpriteNode?
 	
-	var walls = [SKSpriteNode]()
+	var rightWalls = [SKSpriteNode]()
+	var leftWalls = [SKSpriteNode]()
 	
 	var wallsCatagory : UInt32 = 0x1 << 1
 	var runnerCatagory : UInt32 = 0x1 << 2
@@ -44,10 +45,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.runner?.physicsBody?.collisionBitMask = barrierCatagory
 		
 		
+		
+		setUpTimer()
+		
+		
+	}
+	
+	func setUpTimer(){
 		self.generateWallTimer = Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
-		
-		
-		
 	}
 	
 	func createBarriers(){
@@ -109,11 +114,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.addChild(leftWall)
 		self.addChild(rightWall)
 		
-		self.walls.append(leftWall)
-		let leftWallIndex = walls.count - 1
+		self.leftWalls.append(leftWall)
+		let leftWallIndex = leftWalls.count - 1
 		
-		self.walls.append(rightWall)
-		let rightWallIndex = walls.count - 1
+		self.rightWalls.append(rightWall)
+		let rightWallIndex = rightWalls.count - 1
 		
 		
 		
@@ -165,7 +170,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			wallMoveTimer.invalidate()
 			
-			self.walls.remove(at: leftWallIndex)
+			self.leftWalls.remove(at: leftWallIndex)
 		}
 		
 		rightWall.run(moveDown){
@@ -174,7 +179,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			wallMoveTimer.invalidate()
 			
-			self.walls.remove(at: rightWallIndex)
+			
+			
+			self.rightWalls.remove(at: rightWallIndex)
 		}
 	}
 	
@@ -244,10 +251,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		let playButton = SKSpriteNode(imageNamed:"play-button.png")
 		playButton.name = "Play Button"
-		playButton.position = CGPoint(x: 0, y: -400)
-		playButton.size = CGSize(width: 200, height: 200)
+		playButton.position = CGPoint(x: 0, y: -300)
+		playButton.size = CGSize(width: 150, height: 150)
 		
 		self.addChild(playButton)
+	
 		
 	}
 	
@@ -259,8 +267,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if node.physicsBody?.categoryBitMask == wallsCatagory || node.name == "Play Button" || node.name == "Game Over Label"{
 				
 				node.removeFromParent()
+				
+				
 			}
 		}
+		
+		setUpTimer()
 		
 		self.scene?.isPaused = false
 	}
@@ -301,7 +313,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	override func didSimulatePhysics() {
-		for wall in self.walls{
+		for wall in self.leftWalls{
+			
+			wall.physicsBody = SKPhysicsBody(rectangleOf: wall.size)
+			wall.physicsBody?.categoryBitMask = wallsCatagory
+			wall.physicsBody?.collisionBitMask = 0x1 << 0
+			wall.physicsBody?.affectedByGravity = false
+			wall.physicsBody?.allowsRotation = false
+			
+			print(1)
+			
+			if wall.position.y == runner?.position.y{
+				print("crossed")
+			}
+		}
+		
+		for wall in self.rightWalls{
 			
 			wall.physicsBody = SKPhysicsBody(rectangleOf: wall.size)
 			wall.physicsBody?.categoryBitMask = wallsCatagory
