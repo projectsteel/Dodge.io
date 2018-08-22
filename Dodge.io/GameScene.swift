@@ -14,9 +14,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var rightBarrier : SKSpriteNode?
 	var runner : SKSpriteNode?
 	
-	var rightWalls = [SKSpriteNode]()
-	var leftWalls = [SKSpriteNode]()
-	
 	var wallsCatagory : UInt32 = 0x1 << 1
 	var runnerCatagory : UInt32 = 0x1 << 2
 	var barrierCatagory : UInt32 = 0x1 << 3
@@ -52,7 +49,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func setUpTimer(){
-		self.generateWallTimer = Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
+		self.generateWallTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
 	}
 	
 	func createBarriers(){
@@ -102,8 +99,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		leftWall.physicsBody = SKPhysicsBody(rectangleOf: leftWall.size)
 		rightWall.physicsBody = SKPhysicsBody(rectangleOf: rightWall.size)
 		
-		leftWall.physicsBody?.categoryBitMask = wallsCatagory
-		rightWall.physicsBody?.categoryBitMask = wallsCatagory
+		leftWall.physicsBody?.categoryBitMask = self.wallsCatagory
+		rightWall.physicsBody?.categoryBitMask = self.wallsCatagory
+		leftWall.physicsBody?.contactTestBitMask = self.runnerCatagory
+		rightWall.physicsBody?.contactTestBitMask = self.runnerCatagory
 		leftWall.physicsBody?.collisionBitMask = 0x1 << 0
 		rightWall.physicsBody?.collisionBitMask = 0x1 << 0
 		leftWall.physicsBody?.affectedByGravity = false
@@ -114,14 +113,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.addChild(leftWall)
 		self.addChild(rightWall)
 		
-		self.leftWalls.append(leftWall)
-		let leftWallIndex = leftWalls.count - 1
-		
-		self.rightWalls.append(rightWall)
-		let rightWallIndex = rightWalls.count - 1
-		
-		
-		
 		
 		let moveDown = SKAction.moveBy(x: 0, y: -self.size.height, duration: 5)
 		
@@ -130,7 +121,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let differencePerTenthSec : CGFloat = 20
 		
 		let wallMoveTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
-			
+			//update position and width
 			if willMoveLeft{
 				
 				if leftWall.size.width > 5{
@@ -162,6 +153,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					}
 				}
 			}
+		
+			let nodes = [leftWall, rightWall]
+			
+			self.updateWallsPhysicsBodies(nodes: nodes)
+			
+			self.checkForNewPoints(nodes: nodes)
 		}
 		
 		leftWall.run(moveDown){
@@ -170,7 +167,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			wallMoveTimer.invalidate()
 			
-			self.leftWalls.remove(at: leftWallIndex)
 		}
 		
 		rightWall.run(moveDown){
@@ -181,11 +177,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			
 			
-			self.rightWalls.remove(at: rightWallIndex)
 		}
 	}
 	
 	
+	func updateWallsPhysicsBodies(nodes: [SKSpriteNode]){
+		for node in nodes{
+			
+			node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
+			
+			
+			node.physicsBody?.categoryBitMask = self.wallsCatagory
+			node.physicsBody?.contactTestBitMask = self.runnerCatagory
+			node.physicsBody?.collisionBitMask = 0x1 << 0
+			node.physicsBody?.affectedByGravity = false
+			node.physicsBody?.allowsRotation = false
+			
+		}
+	}
+	
+	func checkForNewPoints(nodes: [SKSpriteNode]){
+		if let runner = self.runner{
+			
+			for node in nodes{
+				//print(node.position.y)
+				if ((node.position.y - runner.position.y) < 5) && ((node.position.y - runner.position.y) > -5) {
+					print("score!")
+				}
+			}
+		}
+	}
 	
 	func generateRandomNumber(min: Int, max: Int) -> CGFloat {
 		let randomNum = CGFloat(Int.random(in: min...max))
@@ -306,35 +327,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func didBegin(_ contact: SKPhysicsContact) {
 		
-		if (contact.bodyB.categoryBitMask == runnerCatagory &&  contact.bodyB.categoryBitMask == wallsCatagory) || (contact.bodyA.categoryBitMask == runnerCatagory && contact.bodyB.categoryBitMask == wallsCatagory){
+		
+		if (contact.bodyB.categoryBitMask == runnerCatagory &&  contact.bodyA.categoryBitMask == wallsCatagory) || (contact.bodyA.categoryBitMask == runnerCatagory && contact.bodyB.categoryBitMask == wallsCatagory){
+			
 			
 			endGame()
 		}
 	}
 	
-	override func didSimulatePhysics() {
-		for wall in self.leftWalls{
-			
-			wall.physicsBody = SKPhysicsBody(rectangleOf: wall.size)
-			wall.physicsBody?.categoryBitMask = wallsCatagory
-			wall.physicsBody?.collisionBitMask = 0x1 << 0
-			wall.physicsBody?.affectedByGravity = false
-			wall.physicsBody?.allowsRotation = false
-			
-			print(1)
-			
-			if wall.position.y == runner?.position.y{
-				print("crossed")
-			}
-		}
+
+	override func update(_ currentTime: TimeInterval) {
+		// Called before each frame is rendered
 		
-		for wall in self.rightWalls{
-			
-			wall.physicsBody = SKPhysicsBody(rectangleOf: wall.size)
-			wall.physicsBody?.categoryBitMask = wallsCatagory
-			wall.physicsBody?.collisionBitMask = 0x1 << 0
-			wall.physicsBody?.affectedByGravity = false
-			wall.physicsBody?.allowsRotation = false
-		}
 	}
 }
