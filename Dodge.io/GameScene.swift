@@ -20,6 +20,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	var generateWallTimer : Timer?
 	
+	var score : Int = 0
+	var scoreLabel : SKLabelNode?
+	
 	override func didMove(to view: SKView) {
 		
 		self.physicsWorld.contactDelegate = self
@@ -41,6 +44,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.runner?.physicsBody?.contactTestBitMask = wallsCatagory
 		self.runner?.physicsBody?.collisionBitMask = barrierCatagory
 		
+		
+		let scoreLabel = SKLabelNode(text: "0")
+		scoreLabel.fontSize = 90
+		scoreLabel.position = CGPoint(x: 0, y: self.size.height/2 - scoreLabel.frame.height * 2 - 8)
+		
+		self.scoreLabel = scoreLabel
+		self.addChild(self.scoreLabel!)
 		
 		
 		setUpTimer()
@@ -122,43 +132,50 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		let wallMoveTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 			//update position and width
-			if willMoveLeft{
+			if self.isPaused{
 				
-				if leftWall.size.width > 5{
-					
-					rightWall.run(SKAction.resize(toWidth: rightWall.size.width + differencePerTenthSec, duration: 0.1))
-					
-					leftWall.run(SKAction.resize(toWidth: leftWall.size.width - differencePerTenthSec, duration: 0.1)){
-						
-						if leftWall.size.width <= 5{
-							
-							willMoveLeft = false
-						}
-					}
-					
-				}
+				timer.invalidate()
 				
 			}else{
-				
-				if rightWall.size.width > 5{
+				if willMoveLeft{
 					
-					leftWall.run(SKAction.resize(toWidth: leftWall.size.width + differencePerTenthSec, duration: 0.1))
-					
-					rightWall.run(SKAction.resize(toWidth: rightWall.size.width - differencePerTenthSec, duration: 0.1)){
+					if leftWall.size.width > 5{
 						
-						if rightWall.size.width <= 5{
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + differencePerTenthSec, duration: 0.1))
+						
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - differencePerTenthSec, duration: 0.1)){
 							
-							willMoveLeft = true
+							if leftWall.size.width <= 5{
+								
+								willMoveLeft = false
+							}
+						}
+						
+					}
+					
+				}else{
+					
+					if rightWall.size.width > 5{
+						
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + differencePerTenthSec, duration: 0.1))
+						
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - differencePerTenthSec, duration: 0.1)){
+							
+							if rightWall.size.width <= 5{
+								
+								willMoveLeft = true
+							}
 						}
 					}
 				}
+				
+				let nodes = [leftWall, rightWall]
+				
+				self.updateWallsPhysicsBodies(nodes: nodes)
+				
+				self.checkForNewPoints(node: leftWall)
 			}
-		
-			let nodes = [leftWall, rightWall]
 			
-			self.updateWallsPhysicsBodies(nodes: nodes)
-			
-			self.checkForNewPoints(nodes: nodes)
 		}
 		
 		leftWall.run(moveDown){
@@ -196,22 +213,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 	}
 	
-	func checkForNewPoints(nodes: [SKSpriteNode]){
+	func checkForNewPoints(node: SKSpriteNode){
+		
+		
 		if let runner = self.runner{
 			
-			for node in nodes{
-				//print(node.position.y)
-				if ((node.position.y - runner.position.y) < 5) && ((node.position.y - runner.position.y) > -5) {
-					print("score!")
-				}
+			if ((node.position.y - runner.position.y) < 5) && ((node.position.y - runner.position.y) > -5) {
+				
+				self.score+=1
+				self.updateScoreLabelToScore()
 			}
 		}
 	}
-	
 	func generateRandomNumber(min: Int, max: Int) -> CGFloat {
 		let randomNum = CGFloat(Int.random(in: min...max))
 		
 		return randomNum
+	}
+	
+	func updateScoreLabelToScore(){
+		if let scoreLabel = self.scoreLabel{
+			
+			scoreLabel.text = String(describing: score)
+		}
+		
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -263,6 +288,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		gameOverLabel.position = CGPoint(x: 0, y: 0)
 		gameOverLabel.fontSize = 120
 		
+		if let scoreLabel = self.scoreLabel{
+			scoreLabel.text = ""
+		}
+		
 		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
 			
 			self.addChild(gameOverLabel)
@@ -276,7 +305,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		playButton.size = CGSize(width: 150, height: 150)
 		
 		self.addChild(playButton)
-	
+		
 		
 	}
 	
@@ -288,10 +317,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if node.physicsBody?.categoryBitMask == wallsCatagory || node.name == "Play Button" || node.name == "Game Over Label"{
 				
 				node.removeFromParent()
-				
-				
 			}
 		}
+		
+		self.score = 0
+		self.updateScoreLabelToScore()
 		
 		setUpTimer()
 		
@@ -335,7 +365,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 	}
 	
-
+	
 	override func update(_ currentTime: TimeInterval) {
 		// Called before each frame is rendered
 		
