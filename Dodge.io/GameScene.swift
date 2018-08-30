@@ -53,7 +53,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.addChild(self.scoreLabel!)
 		
 		
-		setUpTimer()
+		self.setUpTimer()
+		
+		self.endGame(didLose: false)
 		
 		
 	}
@@ -277,13 +279,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 	}
 	
-	func endGame(){
+	func endGame(didLose: Bool){
 		
 		self.scene?.isPaused = true
 		self.generateWallTimer?.invalidate()
 		
 		
-		let gameOverLabel =  SKLabelNode(text: "Game Over!")
+		let gameOverLabel =  SKLabelNode()
+		if didLose{
+			gameOverLabel.text = "Game Over!"
+		}else{
+			gameOverLabel.text = "Dodge.io"
+		}
 		gameOverLabel.name = "Game Over Label"
 		gameOverLabel.position = CGPoint(x: 0, y: 0)
 		gameOverLabel.fontSize = 120
@@ -361,7 +368,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if (contact.bodyB.categoryBitMask == runnerCatagory &&  contact.bodyA.categoryBitMask == wallsCatagory) || (contact.bodyA.categoryBitMask == runnerCatagory && contact.bodyB.categoryBitMask == wallsCatagory){
 			
 			
-			endGame()
+			self.endGame(didLose: true)
 		}
 	}
 	

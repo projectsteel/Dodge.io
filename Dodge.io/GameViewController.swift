@@ -12,7 +12,7 @@ import GameplayKit
 import GoogleMobileAds
 
 class GameViewController: UIViewController {
-
+    
     @IBOutlet weak var sceneView: SKView!
     
     @IBOutlet weak var bannerView: GADBannerView!
@@ -20,33 +20,34 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-       
-            // Load the SKScene from 'GameScene.sks'
-            if let scene = SKScene(fileNamed: "GameScene") {
-                // Set the scale mode to scale to fit the window
-                scene.scaleMode = .aspectFill
-                
-                
-                
-                // Present the scene
-                sceneView.presentScene(scene)
-            }
+        
+        
+        // Load the SKScene from 'GameScene.sks'
+        if let scene = SKScene(fileNamed: "GameScene"){
+            // Set the scale mode to scale to fit the window
+            scene.scaleMode = .aspectFill
             
-            sceneView.ignoresSiblingOrder = true
+            // Present the scene
+            sceneView.presentScene(scene)
+            //scene.endGame()
             
-            sceneView.showsFPS = true
-            sceneView.showsNodeCount = true
+        }
+        
+        sceneView.ignoresSiblingOrder = true
+        
+        sceneView.showsFPS = true
+        sceneView.showsNodeCount = true
         
         bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
         bannerView.rootViewController = self
         bannerView.load(GADRequest())
         
     }
-
+    
     override var shouldAutorotate: Bool {
         return true
     }
-
+    
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         if UIDevice.current.userInterfaceIdiom == .phone {
             return .allButUpsideDown
@@ -54,12 +55,12 @@ class GameViewController: UIViewController {
             return .all
         }
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Release any cached data, images, etc that aren't in use.
     }
-
+    
     override var prefersStatusBarHidden: Bool {
         return true
     }
