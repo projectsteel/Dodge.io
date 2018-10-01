@@ -55,7 +55,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.setUpTimer()
 		
-		self.endGame(didLose: false)
+		self.setupGame()
 		
 		
 	}
@@ -279,18 +279,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 	}
 	
-	func endGame(didLose: Bool){
+	func setupGame(){
+		self.scene?.isPaused = true
+		self.generateWallTimer?.invalidate()
+		
+		
+		let gameOverLabel =  SKLabelNode()
+		
+		gameOverLabel.text = "Dodge.io"
+		gameOverLabel.name = "Game Over Label"
+		gameOverLabel.position = CGPoint(x: 0, y: 0)
+		gameOverLabel.fontSize = 120
+		
+		if let scoreLabel = self.scoreLabel{
+			scoreLabel.text = ""
+		}
+		
+		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
+			
+			self.addChild(gameOverLabel)
+			
+		}
+		
+		
+		let playButton = SKSpriteNode(imageNamed:"play-button.png")
+		playButton.name = "Play Button"
+		playButton.position = CGPoint(x: 0, y: -300)
+		playButton.size = CGSize(width: 150, height: 150)
+		
+		self.addChild(playButton)
+	}
+	
+	func endGame(){
 		
 		self.scene?.isPaused = true
 		self.generateWallTimer?.invalidate()
 		
 		
 		let gameOverLabel =  SKLabelNode()
-		if didLose{
-			gameOverLabel.text = "Game Over!"
-		}else{
-			gameOverLabel.text = "Dodge.io"
-		}
+		
+		gameOverLabel.text = "Game Over!"
 		gameOverLabel.name = "Game Over Label"
 		gameOverLabel.position = CGPoint(x: 0, y: 0)
 		gameOverLabel.fontSize = 120
@@ -313,7 +341,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.addChild(playButton)
 		
-		
+		self.runner?.isPaused = false
+		self.runner?.run(SKAction.fadeOut(withDuration: 0.5), completion: {
+			self.runner?.isPaused = true
+		})
 	}
 	
 	func resetGame(){
@@ -326,6 +357,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				node.removeFromParent()
 			}
 		}
+		
+		self.runner?.isPaused = false
+		self.runner?.run(SKAction.fadeIn(withDuration: 0.5), completion: {
+			self.runner?.isPaused = true
+		})
 		
 		self.score = 0
 		self.updateScoreLabelToScore()
@@ -368,7 +404,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if (contact.bodyB.categoryBitMask == runnerCatagory &&  contact.bodyA.categoryBitMask == wallsCatagory) || (contact.bodyA.categoryBitMask == runnerCatagory && contact.bodyB.categoryBitMask == wallsCatagory){
 			
 			
-			self.endGame(didLose: true)
+			self.endGame()
 		}
 	}
 	
