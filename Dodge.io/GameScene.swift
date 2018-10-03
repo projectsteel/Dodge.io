@@ -319,6 +319,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             node.isPaused = true
         }
 		
+		self.runner?.physicsBody?.pinned = true
 		self.runner?.isPaused = false
 		self.generateWallTimer?.invalidate()
 		
@@ -348,7 +349,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.addChild(playButton)
 		print(self.isPaused, self.runner?.isPaused)
-        self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.5)){
+        self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.75)){
             
             self.scene?.isPaused = true
             
@@ -371,19 +372,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		self.runner?.isPaused = false
-		self.runner?.run(SKAction.fadeIn(withDuration: 0.5), completion: {
+		self.runner?.run(SKAction.fadeIn(withDuration: 0.25), completion: {
 			self.runner?.isPaused = true
+			
 		})
 		
+		self.runner?.physicsBody?.pinned = false
 		self.runner?.physicsBody?.categoryBitMask = runnerCatagory
+		self.runner?.position.x = 0
 		
 		self.score = 0
 		self.updateScoreLabelToScore()
 		
 		setUpTimer()
 		
+		
 		self.scene?.isPaused = false
-	//	self.runner?.run(SKAction.fadeIn(withDuration: 0.125))
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
