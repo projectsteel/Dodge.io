@@ -311,8 +311,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func endGame(){
+		//so it doesnt register a colsion everysecond and make with into a loop
+		self.runner?.physicsBody?.categoryBitMask = 0x0 << 0
 		
-		self.scene?.isPaused = true
+        for node in self.children{
+			
+            node.isPaused = true
+        }
+		
+		self.runner?.isPaused = false
 		self.generateWallTimer?.invalidate()
 		
 		
@@ -340,13 +347,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		playButton.size = CGSize(width: 150, height: 150)
 		
 		self.addChild(playButton)
-		
-		self.runner?.isPaused = false
-		self.runner?.run(SKAction.fadeOut(withDuration: 0.5), completion: {
-			self.runner?.isPaused = true
-		})
-	}
+		print(self.isPaused, self.runner?.isPaused)
+        self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.5)){
+            
+            self.scene?.isPaused = true
+            
+            for node in self.children{
+               
+                    node.isPaused = false
+            }
+		}
 	
+	}
 	func resetGame(){
 		
 		let nodes = self.children
@@ -363,12 +375,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			self.runner?.isPaused = true
 		})
 		
+		self.runner?.physicsBody?.categoryBitMask = runnerCatagory
+		
 		self.score = 0
 		self.updateScoreLabelToScore()
 		
 		setUpTimer()
 		
 		self.scene?.isPaused = false
+	//	self.runner?.run(SKAction.fadeIn(withDuration: 0.125))
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
