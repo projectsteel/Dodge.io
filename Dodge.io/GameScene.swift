@@ -25,6 +25,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func didMove(to view: SKView) {
 		
+		NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(willTerminate), name: UIApplication.willTerminateNotification, object: nil)
+		
 		self.physicsWorld.contactDelegate = self
 		
 		self.leftBarrier = self.childNode(withName: "leftBarrier") as? SKSpriteNode
@@ -53,14 +58,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.addChild(self.scoreLabel!)
 		
 		
-		self.setUpTimer()
+		self.setUpTimers()
 		
 		self.setupGame()
 		
 		
 	}
 	
-	func setUpTimer(){
+	func setUpTimers(){
 		self.generateWallTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
 	}
 	
@@ -348,7 +353,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		playButton.size = CGSize(width: 150, height: 150)
 		
 		self.addChild(playButton)
-		print(self.isPaused, self.runner?.isPaused)
+		
         self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.75)){
             
             self.scene?.isPaused = true
@@ -384,7 +389,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.score = 0
 		self.updateScoreLabelToScore()
 		
-		setUpTimer()
+		setUpTimers()
 		
 		
 		self.scene?.isPaused = false
@@ -431,5 +436,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	override func update(_ currentTime: TimeInterval) {
 		// Called before each frame is rendered
 		
+	}
+
+	@objc func willResignActive() {
+		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+		// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+		self.generateWallTimer?.invalidate()
+		self.isPaused = true
+	}
+	
+	@objc func didEnterBackground() {
+		// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+		// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+		self.generateWallTimer?.invalidate()
+		self.isPaused = true
+	}
+	
+	@objc func willEnterForeground() {
+		// Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+		self.setUpTimers()
+		self.isPaused = false
+	}
+	
+	@objc func didBecomeActive() {
+		// Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+		self.setUpTimers()
+		self.isPaused = false
+	}
+	
+	@objc func willTerminate() {
+		// Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 	}
 }
