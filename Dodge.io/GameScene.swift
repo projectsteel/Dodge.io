@@ -23,6 +23,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var score : Int = 0
 	var scoreLabel : SKLabelNode?
 	
+	var userHasPaused : Bool = false
+	
 	override func didMove(to view: SKView) {
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
@@ -58,14 +60,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.addChild(self.scoreLabel!)
 		
 		
-		self.setUpTimers()
+		self.setupTimers()
 		
 		self.setupGame()
 		
 		
 	}
 	
-	func setUpTimers(){
+	func setupTimers(){
 		self.generateWallTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
 	}
 	
@@ -246,43 +248,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 	}
 	
-	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if (self.scene?.isPaused)!{
-			
-			if let touchLocation = touches.first?.location(in: self){
-				
-				let nodesAtLocation = nodes(at: touchLocation)
-				
-				for node in nodesAtLocation{
-					if node.name == "Play Button"{
-						
-						self.resetGame()
-						
-					}
-				}
-			}
-			
-		}else{
-			
-			if let touch = touches.first{
-				
-				let point = touch.preciseLocation(in: self.view)
-				
-				let leftRect = CGRect(x: -self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
-				if leftRect.contains(point){
-					
-					runner?.physicsBody?.applyForce(CGVector(dx: -7000, dy: 0))
-				}
-				
-				let rightRect = CGRect(x: self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
-				if rightRect.contains(point){
-					
-					
-					runner?.physicsBody?.applyForce(CGVector(dx: 7000, dy: 0))
-				}
-			}
-		}
-	}
 	
 	func setupGame(){
 		self.scene?.isPaused = true
@@ -319,10 +284,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		//so it doesnt register a colsion everysecond and make with into a loop
 		self.runner?.physicsBody?.categoryBitMask = 0x0 << 0
 		
-        for node in self.children{
+		for node in self.children{
 			
-            node.isPaused = true
-        }
+			node.isPaused = true
+		}
 		
 		self.runner?.physicsBody?.pinned = true
 		self.runner?.isPaused = false
@@ -354,16 +319,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.addChild(playButton)
 		
-        self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.75)){
-            
-            self.scene?.isPaused = true
-            
-            for node in self.children{
-               
-                    node.isPaused = false
-            }
+		self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.75)){
+			
+			self.scene?.isPaused = true
+			
+			for node in self.children{
+				
+				node.isPaused = false
+			}
 		}
-	
+		
 	}
 	func resetGame(){
 		
@@ -389,10 +354,100 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.score = 0
 		self.updateScoreLabelToScore()
 		
-		setUpTimers()
+		setupTimers()
 		
 		
 		self.scene?.isPaused = false
+	}
+	
+	func pauseGame(){
+		
+		print("pausing")
+		
+		self.scene?.isPaused = true
+		self.userHasPaused = true
+		self.generateWallTimer?.invalidate()
+		
+		let gameOverLabel =  SKLabelNode()
+		
+		gameOverLabel.text = "Paused"
+		gameOverLabel.name = "Game Over Label"
+		gameOverLabel.position = CGPoint(x: 0, y: 0)
+		gameOverLabel.fontSize = 120
+		
+		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
+			
+			self.addChild(gameOverLabel)
+			
+		}
+		
+		let playButton = SKSpriteNode(imageNamed:"play-button.png")
+		playButton.name = "Play Button"
+		playButton.position = CGPoint(x: 0, y: -300)
+		playButton.size = CGSize(width: 150, height: 150)
+		
+		self.addChild(playButton)
+
+	}
+	
+	func unpauseGame(){
+		print("unpausing")
+		let nodes = self.children
+		
+		for node in nodes{
+			if node.name == "Play Button" || node.name == "Game Over Label"{
+				
+				node.removeFromParent()
+			}
+		}
+		
+		self.setupTimers()
+		self.scene?.isPaused = false
+		self.userHasPaused = false
+	}
+	
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if (self.scene?.isPaused)!{
+			
+			if let touchLocation = touches.first?.location(in: self){
+				
+				let nodesAtLocation = nodes(at: touchLocation)
+				
+				for node in nodesAtLocation{
+					if node.name == "Play Button"{
+						if self.userHasPaused{
+							
+							self.unpauseGame()
+							
+						}else{
+							
+							
+							self.resetGame()
+						}
+					}
+				}
+			}
+			
+		}else{
+			
+			if let touch = touches.first{
+				
+				let point = touch.preciseLocation(in: self.view)
+				
+				let leftRect = CGRect(x: -self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
+				if leftRect.contains(point){
+					
+					runner?.physicsBody?.applyForce(CGVector(dx: -7000, dy: 0))
+				}
+				
+				let rightRect = CGRect(x: self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
+				if rightRect.contains(point){
+					
+					
+					runner?.physicsBody?.applyForce(CGVector(dx: 7000, dy: 0))
+				}
+			}
+		}
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -437,31 +492,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		// Called before each frame is rendered
 		
 	}
-
+	
 	@objc func willResignActive() {
 		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
 		// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
-		self.generateWallTimer?.invalidate()
-		self.isPaused = true
+		print("attempting pause", self.isPaused)
+		if self.userHasPaused == false{
+			self.pauseGame()
+		}
 	}
 	
 	@objc func didEnterBackground() {
 		// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
 		// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-		self.generateWallTimer?.invalidate()
-		self.isPaused = true
+		print("attempting pause", self.isPaused)
+		if self.userHasPaused == false{
+			self.pauseGame()
+		}
 	}
 	
 	@objc func willEnterForeground() {
 		// Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-		self.setUpTimers()
-		self.isPaused = false
+		if self.userHasPaused{
+			
+			self.isPaused = true
+		}
 	}
 	
 	@objc func didBecomeActive() {
 		// Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-		self.setUpTimers()
-		self.isPaused = false
+		//self.setUpTimers()
+		if self.userHasPaused{
+			
+			self.isPaused = true
+		}
+		
 	}
 	
 	@objc func willTerminate() {
