@@ -24,6 +24,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var scoreLabel : SKLabelNode?
 	
 	var userHasPaused : Bool = false
+	var wallMoveTimerForUnpausing : Timer?
+	let differencePerTenthSec : CGFloat = 20
 	
 	override func didMove(to view: SKView) {
 		
@@ -112,6 +114,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: 2 * breakPoint, height: 30))
 		let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width:2 * (self.size.width - (breakPoint + 170)), height: 30))
 		
+		leftWall.name = "leftWall"
+		rightWall.name = "rightWall"
+		
 		leftWall.position = CGPoint(x:-(self.size.width/2), y: self.size.height/2)
 		rightWall.position = CGPoint(x:self.size.width/2, y: self.size.height/2)
 		
@@ -137,8 +142,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		var willMoveLeft = Bool.random()
 		
-		let differencePerTenthSec : CGFloat = 20
-		
 		let wallMoveTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 			//update position and width
 			if self.isPaused{
@@ -150,9 +153,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					
 					if leftWall.size.width > 5{
 						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + differencePerTenthSec, duration: 0.1))
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differencePerTenthSec, duration: 0.1))
 						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - differencePerTenthSec, duration: 0.1)){
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differencePerTenthSec, duration: 0.1)){
 							
 							if leftWall.size.width <= 5{
 								
@@ -166,9 +169,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					
 					if rightWall.size.width > 5{
 						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + differencePerTenthSec, duration: 0.1))
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differencePerTenthSec, duration: 0.1))
 						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - differencePerTenthSec, duration: 0.1)){
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differencePerTenthSec, duration: 0.1)){
 							
 							if rightWall.size.width <= 5{
 								
@@ -392,18 +395,114 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func unpauseGame(){
 		print("unpausing")
+		
+		self.setupTimers()
+		
+		
+		var leftWalls : [SKSpriteNode] = []
+		var rightWalls : [SKSpriteNode] = []
+		var walls : [[SKSpriteNode]] = []
+		
 		let nodes = self.children
 		
 		for node in nodes{
 			if node.name == "Play Button" || node.name == "Game Over Label"{
 				
 				node.removeFromParent()
+			}else if node.name == "leftWall"{
+				leftWalls.append(node as! SKSpriteNode)
+			}else if node.name == "rightWall"{
+				rightWalls.append(node as! SKSpriteNode)
 			}
 		}
 		
-		self.setupTimers()
+		for leftWall in leftWalls{
+			for rightWall in rightWalls{
+				if leftWall.position.y == rightWall.position.y{
+					walls.append([leftWall, rightWall])
+					break
+				}
+			}
+		}
+		
+		
 		self.scene?.isPaused = false
+		self.reSetupWallMotion(wallss: walls)
 		self.userHasPaused = false
+		
+		Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { (timer) in
+			self.wallMoveTimerForUnpausing?.invalidate()
+		}
+	}
+	
+	
+	func reSetupWallMotion(wallss: [[SKSpriteNode]]){
+		
+		for walls in wallss{
+			
+			let leftWall = walls[0]
+			let rightWall = walls[1]
+			
+			var willMoveLeft = Bool.random()
+			
+			wallMoveTimerForUnpausing = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
+				//update position and width
+				if self.isPaused{
+					
+					timer.invalidate()
+					
+				}else{
+					if willMoveLeft{
+						
+						if leftWall.size.width > 5{
+							
+							rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differencePerTenthSec, duration: 0.1))
+							
+							leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differencePerTenthSec, duration: 0.1)){
+								
+								if leftWall.size.width <= 5{
+									
+									willMoveLeft = false
+								}
+							}
+							
+						}
+						
+					}else{
+						
+						if rightWall.size.width > 5{
+							
+							leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differencePerTenthSec, duration: 0.1))
+							
+							rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differencePerTenthSec, duration: 0.1)){
+								
+								if rightWall.size.width <= 5{
+									
+									willMoveLeft = true
+								}
+							}
+						}
+					}
+					
+					let nodes = [leftWall, rightWall]
+					
+					self.updateWallsPhysicsBodies(nodes: nodes)
+					
+					self.checkForNewPoints(node: leftWall)
+				}
+				
+			
+				if leftWall.position.y < -(self.size.height/2) || rightWall.position.y < -(self.size.height/2){
+					
+					leftWall.removeFromParent()
+					rightWall.removeFromParent()
+					
+					timer.invalidate()
+					
+				}
+			}
+			
+		}
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -435,6 +534,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				let point = touch.preciseLocation(in: self.view)
 				
 				let leftRect = CGRect(x: -self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
+				
 				if leftRect.contains(point){
 					
 					runner?.physicsBody?.applyForce(CGVector(dx: -7000, dy: 0))
@@ -496,7 +596,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	@objc func willResignActive() {
 		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
 		// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
-		print("attempting pause", self.isPaused)
 		if self.userHasPaused == false{
 			self.pauseGame()
 		}
@@ -505,7 +604,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	@objc func didEnterBackground() {
 		// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
 		// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-		print("attempting pause", self.isPaused)
 		if self.userHasPaused == false{
 			self.pauseGame()
 		}
