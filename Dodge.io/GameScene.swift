@@ -228,8 +228,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func checkForNewPoints(node: SKSpriteNode){
-		
-		
 		if let runner = self.runner{
 			
 			if ((node.position.y - runner.position.y) < 5) && ((node.position.y - runner.position.y) > -5) {
