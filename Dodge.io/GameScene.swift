@@ -25,9 +25,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	var userHasPaused : Bool = false
 	var systemHasPaused : Bool = false
+	var systemIsFuckingWithMeaningOfTheWordPause : Bool = false
 	
 	var wallMoveTimerForUnpausing : Timer?
-	let differencePerTenthSec : CGFloat = 20
+	let differencePerTenthSec : CGFloat = 10
 	
 	override func didMove(to view: SKView) {
 		
@@ -244,11 +245,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func updateScoreLabelToScore(){
-		if let scoreLabel = self.scoreLabel{
-			
-			scoreLabel.text = String(describing: score)
+		if self.isPaused == false && self.systemIsFuckingWithMeaningOfTheWordPause == false{
+			if let scoreLabel = self.scoreLabel{
+				
+				scoreLabel.text = String(describing: score)
+			}
 		}
-		
 	}
 	
 	
@@ -288,6 +290,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		//so it doesnt register a colsion everysecond and make with into a loop
 		self.runner?.physicsBody?.categoryBitMask = 0x0 << 0
 		self.systemHasPaused = true
+		self.systemIsFuckingWithMeaningOfTheWordPause = true
 		
 		for node in self.children{
 			
@@ -324,17 +327,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.addChild(playButton)
 		
-		self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.75)){
+		if self.runner?.alpha == 1.0{
+			self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.75)){
+				
+				self.scene?.isPaused = true
+				
+				self.systemIsFuckingWithMeaningOfTheWordPause = false
+				
+				for node in self.children{
+					
+					node.isPaused = false
+				}
+			}
+		}else{
 			
 			self.scene?.isPaused = true
+			
+			self.systemIsFuckingWithMeaningOfTheWordPause = false
 			
 			for node in self.children{
 				
 				node.isPaused = false
 			}
 		}
-		
 	}
+	
 	func resetGame(){
 		
 		let nodes = self.children
@@ -366,7 +383,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func pauseGame(){
-	
+		
 		self.scene?.isPaused = true
 		self.userHasPaused = true
 		self.generateWallTimer?.invalidate()
@@ -390,7 +407,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		playButton.size = CGSize(width: 150, height: 150)
 		
 		self.addChild(playButton)
-
+		
 	}
 	
 	func unpauseGame(){
@@ -490,7 +507,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					self.checkForNewPoints(node: leftWall)
 				}
 				
-			
+				
 				if leftWall.position.y < -(self.size.height/2) || rightWall.position.y < -(self.size.height/2){
 					
 					leftWall.removeFromParent()
@@ -592,32 +609,70 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 	}
 	
-	@objc func willResignActive() {
-		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-		// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+	func appDidSuspend(){
+		self.isPaused = false
+		
 		if self.userHasPaused == false && systemHasPaused == false{
 			self.pauseGame()
 		}
+		self.isPaused = false
+	}
+	
+	func appDidRenenstate(){
+		
+		self.isPaused = true
+		
+		if self.systemIsFuckingWithMeaningOfTheWordPause{
+			
+			var loopHasFinshied = false
+			
+			for node in self.children{
+				
+				node.isPaused = true
+				
+				if node == self.children.last{
+					loopHasFinshied = true
+				}
+			}
+			
+			while 1 == 1{
+				
+				if loopHasFinshied{
+					
+					runner?.isPaused = false
+					self.isPaused = false
+					break
+					
+				}
+			}
+			
+		}
+	}
+	
+	@objc func willResignActive() {
+		// Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+		// Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+		
+		self.appDidSuspend()
 	}
 	
 	@objc func didEnterBackground() {
 		// Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
 		// If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-		if self.userHasPaused == false && systemHasPaused == false{
-			self.pauseGame()
-		}
+		
+		self.appDidSuspend()
 	}
 	
 	@objc func willEnterForeground() {
 		// Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
-			
-			self.isPaused = true
+		
+		self.appDidRenenstate()
 	}
 	
 	@objc func didBecomeActive() {
 		// Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-			
-			self.isPaused = true
+		
+		self.appDidRenenstate()
 	}
 	
 	@objc func willTerminate() {
