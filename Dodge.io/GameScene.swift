@@ -292,15 +292,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.systemHasPaused = true
 		self.systemIsFuckingWithMeaningOfTheWordPause = true
 		
-		for node in self.children{
-			
-			node.isPaused = true
-		}
-		
 		self.runner?.physicsBody?.pinned = true
 		self.runner?.isPaused = false
 		self.generateWallTimer?.invalidate()
+		self.wallMoveTimerForUnpausing?.invalidate()
 		
+		for node in self.children{
+			
+			if node.name == "leftWall" || node.name == "rightWall"{
+				node.removeAllActions()
+				node.isPaused = true
+			}
+			
+			if node == self.children.last{
+				
+				if self.runner?.alpha == 1.0{
+					self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.75)){
+						
+						self.scene?.isPaused = true
+						
+						self.systemIsFuckingWithMeaningOfTheWordPause = false
+						
+					}
+				}else{
+					
+					self.scene?.isPaused = true
+					
+					self.systemIsFuckingWithMeaningOfTheWordPause = false
+					
+				}
+			}
+		}
 		
 		let gameOverLabel =  SKLabelNode()
 		
@@ -327,29 +349,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.addChild(playButton)
 		
-		if self.runner?.alpha == 1.0{
-			self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.75)){
-				
-				self.scene?.isPaused = true
-				
-				self.systemIsFuckingWithMeaningOfTheWordPause = false
-				
-				for node in self.children{
-					
-					node.isPaused = false
-				}
-			}
-		}else{
-			
-			self.scene?.isPaused = true
-			
-			self.systemIsFuckingWithMeaningOfTheWordPause = false
-			
-			for node in self.children{
-				
-				node.isPaused = false
-			}
-		}
 	}
 	
 	func resetGame(){
