@@ -19,6 +19,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var barrierCatagory : UInt32 = 0x1 << 3
 	
 	var generateWallTimer : Timer?
+	var wallMoveTimerForUnpausing : Timer?
+	let differencePerTenthSec : CGFloat = 10
 	
 	var score : Int = 0
 	var scoreLabel : SKLabelNode?
@@ -27,8 +29,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var systemHasPaused : Bool = false
 	var systemIsFuckingWithMeaningOfTheWordPause : Bool = false
 	
-	var wallMoveTimerForUnpausing : Timer?
-	let differencePerTenthSec : CGFloat = 10
 	
 	override func didMove(to view: SKView) {
 		
@@ -615,37 +615,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if self.userHasPaused == false && systemHasPaused == false{
 			self.pauseGame()
 		}
-		self.isPaused = false
 	}
 	
 	func appDidRenenstate(){
 		
-		self.isPaused = true
-		
 		if self.systemIsFuckingWithMeaningOfTheWordPause{
-			
-			var loopHasFinshied = false
+			self.isPaused = true
 			
 			for node in self.children{
 				
-				node.isPaused = true
-				
+				if node.name == "leftWall" || node.name == "rightWall"{
+					node.removeAllActions()
+				}
+			
 				if node == self.children.last{
-					loopHasFinshied = true
-				}
-			}
-			
-			while 1 == 1{
-				
-				if loopHasFinshied{
 					
-					runner?.isPaused = false
 					self.isPaused = false
-					break
-					
 				}
 			}
 			
+		}else{
+			
+			self.isPaused = true
 		}
 	}
 	
