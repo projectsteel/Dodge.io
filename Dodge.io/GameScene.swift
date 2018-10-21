@@ -20,7 +20,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	var generateWallTimer : Timer?
 	var wallMoveTimerForUnpausing : Timer?
+	
 	let differencePerTenthSec : CGFloat = 10
+	
+	var leftRect : CGRect?
+	var rightRect : CGRect?
 	
 	var score : Int = 0
 	var scoreLabel : SKLabelNode?
@@ -29,6 +33,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var systemHasPaused : Bool = false
 	var systemIsFuckingWithMeaningOfTheWordPause : Bool = false
 	
+	let runnerSpeed : CGFloat = 15000
 	
 	override func didMove(to view: SKView) {
 		
@@ -544,22 +549,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 		}else{
 			
-			if let touch = touches.first{
+			if let touch = touches.first, let leftRect = self.leftRect, let rightRect = self.rightRect, let runner = self.runner{
 				
-				let point = touch.preciseLocation(in: self.view)
-				
-				let leftRect = CGRect(x: -self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
+				let point = touch.location(in: self)
 				
 				if leftRect.contains(point){
 					
-					runner?.physicsBody?.applyForce(CGVector(dx: -7000, dy: 0))
+					if runner.physicsBody!.velocity.dx < CGFloat(0.0){
+						
+						runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+						
+					}
+					runner.physicsBody?.applyForce(CGVector(dx: -runnerSpeed, dy: 0))
+					
 				}
 				
-				let rightRect = CGRect(x: self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
 				if rightRect.contains(point){
 					
-					
-					runner?.physicsBody?.applyForce(CGVector(dx: 7000, dy: 0))
+					if  runner.physicsBody!.velocity.dx < CGFloat(0.0){
+						
+						runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+						
+					}
+					runner.physicsBody?.applyForce(CGVector(dx: runnerSpeed, dy: 0))
 				}
 			}
 		}
@@ -567,22 +579,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		
-		if let touch = touches.first{
+		if let touch = touches.first, let runner = self.runner{
 			
-			let point = touch.preciseLocation(in: self.view)
+			let touchPoint = touch.preciseLocation(in: self.view)
 			
-			let leftRect = CGRect(x: -self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
-			if leftRect.contains(point){
+			let previousTouchPoint = touch.previousLocation(in: self.view)
+			
+			if (touchPoint.x - previousTouchPoint.x > 0) {
+				//finger touch went right
 				
-				runner?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-				runner?.physicsBody?.applyForce(CGVector(dx: -20000, dy: 0))
+				runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+				runner.physicsBody?.applyForce(CGVector(dx: runnerSpeed * 1.2, dy: 0))
+				
 			}
-			
-			let rightRect = CGRect(x: self.size.width/4, y: 0, width: self.size.width/2, height: self.size.height)
-			if rightRect.contains(point){
+			if(touchPoint.x - previousTouchPoint.x < 0.0) {
+				//finger touch went left
 				
-				runner?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-				runner?.physicsBody?.applyForce(CGVector(dx: 20000, dy: 0))
+				runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+				runner.physicsBody?.applyForce(CGVector(dx: -runnerSpeed * 1.2, dy: 0))
+				
 			}
 		}
 	}
@@ -606,6 +621,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	override func update(_ currentTime: TimeInterval) {
 		// Called before each frame is rendered
 		
+		if let runner = self.runner{
+			
+			self.leftRect = CGRect(x: -self.size.width/2, y: -self.size.height/2, width: abs(runner.position.x.distance(to: -self.size.width/2)), height: self.size.height)
+			
+			
+			self.rightRect = CGRect(x: runner.position.x, y: -self.size.height/2, width:  runner.position.x.distance(to: self.size.width/2), height: self.size.height)
+			
+		}
 	}
 	
 	func appDidSuspend(){
@@ -626,7 +649,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				if node.name == "leftWall" || node.name == "rightWall"{
 					node.removeAllActions()
 				}
-			
+				
 				if node == self.children.last{
 					
 					self.isPaused = false
