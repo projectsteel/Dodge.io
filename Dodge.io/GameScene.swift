@@ -253,6 +253,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if self.isPaused == false && self.systemIsFuckingWithMeaningOfTheWordPause == false{
 			if let scoreLabel = self.scoreLabel{
 				
+				let currentTotal = UserDefaults.standard.integer(forKey: "currentTotal")
+				UserDefaults.standard.set(currentTotal + 1, forKey: "currentTotal")
+				
+				let currentRecord = UserDefaults.standard.integer(forKey: "currentRecord")
+				if score > currentRecord{
+					UserDefaults.standard.set(score, forKey: "currentRecord")
+				}
+				
 				scoreLabel.text = String(describing: score)
 			}
 		}
@@ -265,21 +273,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.generateWallTimer?.invalidate()
 		
 		
-		let gameOverLabel =  SKLabelNode()
-		
-		gameOverLabel.text = "Dodge.io"
-		gameOverLabel.name = "Game Over Label"
-		gameOverLabel.position = CGPoint(x: 0, y: 0)
-		gameOverLabel.fontSize = 120
-		
 		if let scoreLabel = self.scoreLabel{
 			scoreLabel.text = ""
-		}
-		
-		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
-			
-			self.addChild(gameOverLabel)
-			
 		}
 		
 		
@@ -289,6 +284,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		playButton.size = CGSize(width: 150, height: 150)
 		
 		self.addChild(playButton)
+		
+		let bestScoreLabel = SKLabelNode()
+		bestScoreLabel.name = "Best Score Label"
+		bestScoreLabel.position = CGPoint(x: 0, y: 0)
+		bestScoreLabel.fontSize = 70
+		bestScoreLabel.text = "High Score: \(UserDefaults.standard.integer(forKey: "currentRecord"))"
+		
+		self.addChild(bestScoreLabel)
+		
+		let gameOverLabel =  SKLabelNode()
+		
+		gameOverLabel.text = "Dodge.io"
+		gameOverLabel.name = "Game Over Label"
+		gameOverLabel.position = CGPoint(x: 0, y: bestScoreLabel.fontSize/2 + 140)
+		gameOverLabel.fontSize = 140
+		
+		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
+			
+			self.addChild(gameOverLabel)
+			
+		}
+		
 	}
 	
 	func endGame(){
@@ -329,12 +346,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 		}
 		
-		let gameOverLabel =  SKLabelNode()
 		
+		let playButton = SKSpriteNode(imageNamed:"play-button.png")
+		playButton.name = "Play Button"
+		playButton.position = CGPoint(x: 0, y: -300)
+		playButton.size = CGSize(width: 150, height: 150)
+		
+		self.addChild(playButton)
+		
+		let bestScoreLabel = SKLabelNode()
+		bestScoreLabel.name = "Best Score Label"
+		bestScoreLabel.position = CGPoint(x: 0, y: 0)
+		bestScoreLabel.fontSize = 70
+		bestScoreLabel.text = "Score: \(score)"
+		
+		self.addChild(bestScoreLabel)
+		
+		let gameOverLabel =  SKLabelNode()
 		gameOverLabel.text = "Game Over!"
 		gameOverLabel.name = "Game Over Label"
-		gameOverLabel.position = CGPoint(x: 0, y: 0)
-		gameOverLabel.fontSize = 120
+		gameOverLabel.position = CGPoint(x: 0, y: bestScoreLabel.fontSize/2 + 140)
+		gameOverLabel.fontSize = 140
 		
 		if let scoreLabel = self.scoreLabel{
 			scoreLabel.text = ""
@@ -345,23 +377,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			self.addChild(gameOverLabel)
 			
 		}
-		
-		
-		let playButton = SKSpriteNode(imageNamed:"play-button.png")
-		playButton.name = "Play Button"
-		playButton.position = CGPoint(x: 0, y: -300)
-		playButton.size = CGSize(width: 150, height: 150)
-		
-		self.addChild(playButton)
-		
 	}
 	
 	func resetGame(){
 		
+		
 		let nodes = self.children
 		
 		for node in nodes{
-			if node.physicsBody?.categoryBitMask == wallsCatagory || node.name == "Play Button" || node.name == "Game Over Label"{
+			if node.physicsBody?.categoryBitMask == wallsCatagory || node.name == "Play Button" || node.name == "Game Over Label" || node.name == "Best Score Label"{
 				
 				node.removeFromParent()
 			}
