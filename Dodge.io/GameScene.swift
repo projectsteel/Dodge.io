@@ -21,8 +21,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var generateWallTimer : Timer?
 	var wallMoveTimerForUnpausing : Timer?
 	
-	let differencePerTenthSec : CGFloat = 10
-	
 	var leftRect : CGRect?
 	var rightRect : CGRect?
 	
@@ -33,9 +31,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var systemHasPaused : Bool = false
 	var systemIsFuckingWithMeaningOfTheWordPause : Bool = false
 	
-	let runnerSpeed : CGFloat = 10000
-	let gapSpeed : Double = 0.5
+	let runnerSpeed : CGFloat = 12000
 	let wallMoveDownDuration : Double = 5
+	let differenceInWallResizePerTenthSec : CGFloat = 5
 	
 	override func didMove(to view: SKView) {
 		
@@ -66,7 +64,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		let scoreLabel = SKLabelNode(text: "0")
 		scoreLabel.fontSize = 90
-		scoreLabel.position = CGPoint(x: 0, y: 2 - scoreLabel.frame.height * 2 - 8)
+		scoreLabel.position = CGPoint(x: 0, y: self.frame.height/2 - scoreLabel.frame.height * 2 - 8)
 		
 		self.scoreLabel = scoreLabel
 		self.addChild(self.scoreLabel!)
@@ -80,7 +78,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func setupTimers(){
-		self.generateWallTimer = Timer.scheduledTimer(timeInterval: wallMoveDownDuration/5, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
+		self.generateWallTimer = Timer.scheduledTimer(timeInterval: wallMoveDownDuration/2.5, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
 	}
 	
 	func createBarriers(){
@@ -148,11 +146,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.addChild(rightWall)
 		
 		
-		let moveDown = SKAction.moveBy(x: 0, y: -self.size.height, duration: wallMoveDownDuration)
+		let moveDown = SKAction.moveBy(x: 0, y: -self.size.height + leftWall.frame.height, duration: wallMoveDownDuration)
 		
 		var willMoveLeft = Bool.random()
 		
-		let wallMoveTimer = Timer.scheduledTimer(withTimeInterval: gapSpeed, repeats: true) { (timer) in
+		let wallMoveTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 			//update position and width
 			if self.isPaused{
 				
@@ -163,9 +161,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					
 					if leftWall.size.width > 5{
 						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differencePerTenthSec, duration: self.gapSpeed))
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
 						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differencePerTenthSec, duration: self.gapSpeed)){
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
 							
 							if leftWall.size.width <= 5{
 								
@@ -179,9 +177,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					
 					if rightWall.size.width > 5{
 						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differencePerTenthSec, duration: self.gapSpeed))
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
 						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differencePerTenthSec, duration: self.gapSpeed)){
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
 							
 							if rightWall.size.width <= 5{
 								
@@ -498,7 +496,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			var willMoveLeft = Bool.random()
 			
-			wallMoveTimerForUnpausing = Timer.scheduledTimer(withTimeInterval: gapSpeed, repeats: true) { (timer) in
+			wallMoveTimerForUnpausing = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 				//update position and width
 				if self.isPaused{
 					
@@ -509,9 +507,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 						
 						if leftWall.size.width > 5{
 							
-							rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differencePerTenthSec, duration: self.gapSpeed))
+							rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
 							
-							leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differencePerTenthSec, duration: self.gapSpeed)){
+							leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
 								
 								if leftWall.size.width <= 5{
 									
@@ -525,9 +523,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 						
 						if rightWall.size.width > 5{
 							
-							leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differencePerTenthSec, duration: self.gapSpeed))
+							leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differenceInWallResizePerTenthSec, duration:0.1))
 							
-							rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differencePerTenthSec, duration: self.gapSpeed)){
+							rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
 								
 								if rightWall.size.width <= 5{
 									
