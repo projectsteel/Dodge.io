@@ -31,9 +31,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var systemHasPaused : Bool = false
 	var systemIsFuckingWithMeaningOfTheWordPause : Bool = false
 	
-	let runnerSpeed : CGFloat = 12000
-	let wallMoveDownDuration : Double = 5
-	let differenceInWallResizePerTenthSec : CGFloat = 5
+	let runnerSpeed : CGFloat = 15000
+	let wallMoveDownDuration : Double = 7
+	let differenceInWallResizePerTenthSec : CGFloat = 10
+	
 	
 	override func didMove(to view: SKView) {
 		
