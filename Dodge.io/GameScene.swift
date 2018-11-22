@@ -33,7 +33,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var systemHasPaused : Bool = false
 	var systemIsFuckingWithMeaningOfTheWordPause : Bool = false
 	
-	let runnerSpeed : CGFloat = 15000
+	let runnerSpeed : CGFloat = 10000
+	let wallSpeed : Double = 0.5
 	
 	override func didMove(to view: SKView) {
 		
@@ -150,7 +151,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		var willMoveLeft = Bool.random()
 		
-		let wallMoveTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
+		let wallMoveTimer = Timer.scheduledTimer(withTimeInterval: wallSpeed, repeats: true) { (timer) in
 			//update position and width
 			if self.isPaused{
 				
@@ -489,7 +490,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			var willMoveLeft = Bool.random()
 			
-			wallMoveTimerForUnpausing = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
+			wallMoveTimerForUnpausing = Timer.scheduledTimer(withTimeInterval: wallSpeed, repeats: true) { (timer) in
 				//update position and width
 				if self.isPaused{
 					
