@@ -251,6 +251,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 		}
 	}
+	
 	func generateRandomNumber(min: Int, max: Int) -> CGFloat {
 		let randomNum = CGFloat(Int.random(in: min...max))
 		
