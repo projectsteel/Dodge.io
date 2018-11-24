@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F4201BC21A8A69200ECFFE5 /* DevSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4201BB21A8A69200ECFFE5 /* DevSettingsViewController.swift */; };
 		3FF3CCDE211F585F0032FD8D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF3CCDD211F585F0032FD8D /* AppDelegate.swift */; };
 		3FF3CCE0211F585F0032FD8D /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 3FF3CCDF211F585F0032FD8D /* GameScene.sks */; };
 		3FF3CCE4211F585F0032FD8D /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FF3CCE3211F585F0032FD8D /* GameScene.swift */; };
@@ -21,6 +22,7 @@
 /* Begin PBXFileReference section */
 		1708ADA7CFF8BA73EB451363 /* Pods_Dodge_io.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Dodge_io.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		229B84B93296A52EF005BD6D /* Pods-Dodge.io.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Dodge.io.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Dodge.io/Pods-Dodge.io.debug.xcconfig"; sourceTree = "<group>"; };
+		3F4201BB21A8A69200ECFFE5 /* DevSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevSettingsViewController.swift; sourceTree = "<group>"; };
 		3FF3CCDA211F585F0032FD8D /* Dodge.io.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dodge.io.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FF3CCDD211F585F0032FD8D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3FF3CCDF211F585F0032FD8D /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -71,6 +73,7 @@
 				3FF3CCDF211F585F0032FD8D /* GameScene.sks */,
 				3FF3CCE3211F585F0032FD8D /* GameScene.swift */,
 				3FF3CCE5211F585F0032FD8D /* GameViewController.swift */,
+				3F4201BB21A8A69200ECFFE5 /* DevSettingsViewController.swift */,
 				3FF3CCE7211F585F0032FD8D /* Main.storyboard */,
 				3FF3CCEA211F58610032FD8D /* Assets.xcassets */,
 				3FF3CCEC211F58610032FD8D /* LaunchScreen.storyboard */,
@@ -215,6 +218,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3FF3CCE4211F585F0032FD8D /* GameScene.swift in Sources */,
+				3F4201BC21A8A69200ECFFE5 /* DevSettingsViewController.swift in Sources */,
 				3FF3CCE6211F585F0032FD8D /* GameViewController.swift in Sources */,
 				3FF3CCDE211F585F0032FD8D /* AppDelegate.swift in Sources */,
 			);
