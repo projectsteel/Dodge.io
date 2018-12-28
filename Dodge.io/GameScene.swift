@@ -31,9 +31,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var systemHasPaused : Bool = false
 	var systemIsFuckingWithMeaningOfTheWordPause : Bool = false
 	
-	let runnerSpeed : CGFloat = 15000
-	let wallMoveDownDuration : Double = 7
-	let differenceInWallResizePerTenthSec : CGFloat = 10
+	var runnerSpeed : CGFloat = 14000
+	var wallMoveDownDuration : Double = 7
+	var differenceInWallResizePerTenthSec : CGFloat = 10
 	
 	
 	override func didMove(to view: SKView) {
@@ -149,49 +149,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		let moveDown = SKAction.moveBy(x: 0, y: -self.size.height + leftWall.frame.height, duration: wallMoveDownDuration)
 		
-		var willMoveLeft = Bool.random()
-		
-		let wallMoveTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
-			//update position and width
-			if self.isPaused{
-				
-				timer.invalidate()
-				
-			}else{
-				if willMoveLeft{
-					
-					if leftWall.size.width > 5{
-						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
-						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
-							
-							if leftWall.size.width <= 5{
-								
-								willMoveLeft = false
-							}
-						}
-						
-					}
-					
-				}else{
-					
-					if rightWall.size.width > 5{
-						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
-						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
-							
-							if rightWall.size.width <= 5{
-								
-								willMoveLeft = true
-							}
-						}
-					}
-				}
-			}
-			
-		}
+		let wallMoveTimer = setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: false)
 		
 		leftWall.run(moveDown){
 			
@@ -211,18 +169,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 		}
 		
-		Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { (timer) in
-			
-			let nodes = [leftWall, rightWall]
-			
-			self.updateWallsPhysicsBodies(nodes: nodes)
-			
-			self.checkForNewPoints(node: leftWall)
-			
-			if leftWall.parent != self{
-				timer.invalidate()
-			}
-		})
 	}
 	
 	
@@ -247,6 +193,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if ((node.position.y - runner.position.y) < 5) && ((node.position.y - runner.position.y) > -5) {
 				
 				self.score+=1
+				
+				//self.wallMoveDownDuration *= 0.9
+				print(wallMoveDownDuration)
+				
 				self.updateScoreLabelToScore()
 			}
 		}
@@ -412,6 +362,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.score = 0
 		self.updateScoreLabelToScore()
+		wallMoveDownDuration = 7
 		
 		setupTimers()
 		
@@ -483,9 +434,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.reSetupWallMotion(wallss: walls)
 		self.userHasPaused = false
 		
-		Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { (timer) in
-			self.wallMoveTimerForUnpausing?.invalidate()
-		}
 	}
 	
 	
@@ -496,49 +444,56 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			let leftWall = walls[0]
 			let rightWall = walls[1]
 			
-			var willMoveLeft = Bool.random()
-			
-			wallMoveTimerForUnpausing = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
-				//update position and width
-				if self.isPaused{
+			self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: true)
+		}
+	}
+	
+	func setupWallMotion(leftWall: SKSpriteNode, rightWall: SKSpriteNode, isRecovingExistingWalls: Bool) -> Timer{
+		
+		var willMoveLeft = Bool.random()
+		
+		let setupWallMotionTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { (timer) in
+			//update position and width
+			if self.isPaused{
+				
+				timer.invalidate()
+				
+			}else{
+				if willMoveLeft{
 					
-					timer.invalidate()
-					
-				}else{
-					if willMoveLeft{
+					if leftWall.size.width > 5{
 						
-						if leftWall.size.width > 5{
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
+						
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
 							
-							rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
-							
-							leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
+							if leftWall.size.width <= 5{
 								
-								if leftWall.size.width <= 5{
-									
-									willMoveLeft = false
-								}
+								willMoveLeft = false
 							}
-							
 						}
 						
-					}else{
+					}
+					
+				}else{
+					
+					if rightWall.size.width > 5{
 						
-						if rightWall.size.width > 5{
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
+						
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
 							
-							leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differenceInWallResizePerTenthSec, duration:0.1))
-							
-							rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
+							if rightWall.size.width <= 5{
 								
-								if rightWall.size.width <= 5{
-									
-									willMoveLeft = true
-								}
+								willMoveLeft = true
 							}
 						}
 					}
-					
 				}
 				
+			}
+			
+			if isRecovingExistingWalls{
 				
 				if leftWall.position.y < -(self.size.height/2) || rightWall.position.y < -(self.size.height/2){
 					
@@ -549,20 +504,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					
 				}
 			}
-			
-			Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { (timer) in
-				
-				let nodes = [leftWall, rightWall]
-				
-				self.updateWallsPhysicsBodies(nodes: nodes)
-				
-				self.checkForNewPoints(node: leftWall)
-				
-				if leftWall.parent != self{
-					timer.invalidate()
-				}
-			})
 		}
+		
+		Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { (timer) in
+			
+			let nodes = [leftWall, rightWall]
+			
+			self.updateWallsPhysicsBodies(nodes: nodes)
+			
+			self.checkForNewPoints(node: leftWall)
+			
+			if leftWall.parent != self{
+				timer.invalidate()
+			}
+		})
+		
+		return setupWallMotionTimer
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -593,24 +550,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				let point = touch.location(in: self)
 				
+				if runner.physicsBody!.velocity.dx != CGFloat(0.0){
+					
+					runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+		
+				}
+				
 				if leftRect.contains(point){
 					
-					if runner.physicsBody!.velocity.dx < CGFloat(0.0){
-						
-						runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-						
-					}
 					runner.physicsBody?.applyForce(CGVector(dx: -runnerSpeed, dy: 0))
 					
 				}
 				
 				if rightRect.contains(point){
-					
-					if  runner.physicsBody!.velocity.dx < CGFloat(0.0){
-						
-						runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-						
-					}
+				
 					runner.physicsBody?.applyForce(CGVector(dx: runnerSpeed, dy: 0))
 				}
 			}
@@ -619,27 +572,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		
-		if let touch = touches.first, let runner = self.runner{
-			
-			let touchPoint = touch.preciseLocation(in: self.view)
-			
-			let previousTouchPoint = touch.previousLocation(in: self.view)
-			
-			if (touchPoint.x - previousTouchPoint.x > 0) {
-				//finger touch went right
-				
-				runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-				runner.physicsBody?.applyForce(CGVector(dx: runnerSpeed * 1.2, dy: 0))
-				
-			}
-			if(touchPoint.x - previousTouchPoint.x < 0.0) {
-				//finger touch went left
-				
-				runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-				runner.physicsBody?.applyForce(CGVector(dx: -runnerSpeed * 1.2, dy: 0))
-				
-			}
-		}
+		touchesBegan(touches, with: event)
 	}
 	
 	
@@ -664,8 +597,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		if let runner = self.runner{
 			
 			self.leftRect = CGRect(x: -self.size.width/2, y: -self.size.height/2, width: abs(runner.position.x.distance(to: -self.size.width/2)), height: self.size.height)
-			
-			
 			self.rightRect = CGRect(x: runner.position.x, y: -self.size.height/2, width:  runner.position.x.distance(to: self.size.width/2), height: self.size.height)
 			
 		}
