@@ -146,28 +146,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.addChild(leftWall)
 		self.addChild(rightWall)
 		
-		
-		let moveDown = SKAction.moveBy(x: 0, y: -self.size.height + leftWall.frame.height, duration: wallMoveDownDuration)
-		
-		let wallMoveTimer = setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: false)
-		
-		leftWall.run(moveDown){
-			
-			leftWall.removeFromParent()
-			
-			wallMoveTimer.invalidate()
-			
-		}
-		
-		rightWall.run(moveDown){
-			
-			rightWall.removeFromParent()
-			
-			wallMoveTimer.invalidate()
-			
-			
-			
-		}
+		self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: false)
 		
 	}
 	
@@ -448,7 +427,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 	}
 	
-	func setupWallMotion(leftWall: SKSpriteNode, rightWall: SKSpriteNode, isRecovingExistingWalls: Bool) -> Timer{
+	func setupWallMotion(leftWall: SKSpriteNode, rightWall: SKSpriteNode, isRecovingExistingWalls: Bool){
 		
 		var willMoveLeft = Bool.random()
 		
@@ -519,7 +498,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 		})
 		
-		return setupWallMotionTimer
+		
+		if isRecovingExistingWalls == false{
+			
+			let moveDown = SKAction.moveBy(x: 0, y: -self.size.height + leftWall.frame.height, duration: wallMoveDownDuration)
+			
+			leftWall.run(moveDown){
+				
+				leftWall.removeFromParent()
+				
+				setupWallMotionTimer.invalidate()
+				
+			}
+			
+			rightWall.run(moveDown){
+				
+				rightWall.removeFromParent()
+				
+				setupWallMotionTimer.invalidate()
+				
+				
+				
+			}
+		}
+	
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
