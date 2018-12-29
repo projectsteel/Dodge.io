@@ -31,9 +31,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var systemHasPaused : Bool = false
 	var systemIsFuckingWithMeaningOfTheWordPause : Bool = false
 	
-	var runnerSpeed : CGFloat = 14000
-	var wallMoveDownDuration : Double = 7
-	var differenceInWallResizePerTenthSec : CGFloat = 10
 	
 	
 	override func didMove(to view: SKView) {
@@ -341,7 +338,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.score = 0
 		self.updateScoreLabelToScore()
-		wallMoveDownDuration = 7
+		//wallMoveDownDuration = 7
 		
 		setupTimers()
 		
@@ -442,9 +439,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					
 					if leftWall.size.width > 5{
 						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + differenceInWallResizePerTenthSec, duration: 0.1))
 						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - differenceInWallResizePerTenthSec, duration: 0.1)){
 							
 							if leftWall.size.width <= 5{
 								
@@ -458,9 +455,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					
 					if rightWall.size.width > 5{
 						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + self.differenceInWallResizePerTenthSec, duration: 0.1))
+						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + differenceInWallResizePerTenthSec, duration: 0.1))
 						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - self.differenceInWallResizePerTenthSec, duration: 0.1)){
+						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - differenceInWallResizePerTenthSec, duration: 0.1)){
 							
 							if rightWall.size.width <= 5{
 								

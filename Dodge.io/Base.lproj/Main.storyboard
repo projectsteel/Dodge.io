@@ -197,9 +197,9 @@
                     </view>
                     <navigationItem key="navigationItem" id="af6-8J-eu2"/>
                     <connections>
-                        <outlet property="WallDownDurationTextBox" destination="fYh-rr-FOr" id="QLn-Xd-YE1"/>
                         <outlet property="gapDiffPerTenthSecTextBox" destination="Tpi-4F-BzB" id="bDB-vf-m02"/>
                         <outlet property="runnerSpeedTextBox" destination="VSg-1R-r6U" id="qsG-0C-Y47"/>
+                        <outlet property="wallDownDurationTextBox" destination="fYh-rr-FOr" id="CRI-pR-O3U"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zTM-TK-09K" userLabel="First Responder" sceneMemberID="firstResponder"/>
