@@ -5,11 +5,17 @@
 //  Created by Jamie Pickar on 12/28/18.
 //  Copyright © 2018 Project Steel. All rights reserved.
 //
-//  All Global Vars are declaired here.
+//  All Global Elements are declaired here.
 
 import Foundation
 import UIKit
 
-var runnerSpeed : CGFloat = 14000
+var runnerSpeed : CGFloat = 1000
 var wallMoveDownDuration : Double = 7
 var differenceInWallResizePerTenthSec : CGFloat = 10
+
+public func restoreSpeed(){
+    runnerSpeed = 1000
+    wallMoveDownDuration = 7
+    differenceInWallResizePerTenthSec = 10
+}

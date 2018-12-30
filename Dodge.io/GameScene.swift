@@ -518,10 +518,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 			}
 		}
-	
+		
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		
 		if self.isPaused{
 			
 			if let touchLocation = touches.first?.location(in: self){
@@ -545,27 +546,54 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 		}else{
 			
-			if let touch = touches.first, let leftRect = self.leftRect, let rightRect = self.rightRect, let runner = self.runner{
-				
-				let point = touch.location(in: self)
-				
-				if runner.physicsBody!.velocity.dx != CGFloat(0.0){
+			if let runner = self.runner{
+				if let touchPointX = touches.first?.previousLocation(in: runner.parent!).x{
+					print(touchPointX)
 					
-					runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-		
-				}
-				
-				if leftRect.contains(point){
 					
-					runner.physicsBody?.applyForce(CGVector(dx: -runnerSpeed, dy: 0))
-					
-				}
-				
-				if rightRect.contains(point){
-				
-					runner.physicsBody?.applyForce(CGVector(dx: runnerSpeed, dy: 0))
+					if !((touchPointX - runner.position.x) <= 10) || !((touchPointX - runner.position.x) >= -10){
+						
+						if touchPointX > runner.position.x {
+							
+							print("right")
+						
+							runner.physicsBody?.velocity = CGVector(dx: runnerSpeed, dy: 0)
+							
+						}
+						
+						if touchPointX < runner.position.x{
+							
+							print("left")
+							
+							runner.physicsBody?.velocity = CGVector(dx: -runnerSpeed, dy: 0)
+						}
+						
+					}else{
+						runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+					}
 				}
 			}
+			/*if let touch = touches.first, let leftRect = self.leftRect, let rightRect = self.rightRect, let runner = self.runner{
+			
+			let point = touch.location(in: self)
+			
+			if runner.physicsBody!.velocity.dx != CGFloat(0.0){
+			
+			runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+			
+			}
+			
+			if leftRect.contains(point){
+			
+			runner.physicsBody?.applyForce(CGVector(dx: -runnerSpeed, dy: 0))
+			
+			}
+			
+			if rightRect.contains(point){
+			
+			runner.physicsBody?.applyForce(CGVector(dx: runnerSpeed, dy: 0))
+			}
+			}*/
 		}
 	}
 	
