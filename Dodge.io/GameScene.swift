@@ -21,8 +21,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var generateWallTimer : Timer?
 	var wallMoveTimerForUnpausing : Timer?
 	
-	var leftRect : CGRect?
-	var rightRect : CGRect?
+	var lastTouchPointX : CGFloat?
+	var stopingDistance : CGFloat?
 	
 	var score : Int = 0
 	var scoreLabel : SKLabelNode?
@@ -59,6 +59,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.runner?.physicsBody?.contactTestBitMask = wallsCatagory
 		self.runner?.physicsBody?.collisionBitMask = barrierCatagory
 		
+		self.stopingDistance = runner!.size.width/2
 		
 		let scoreLabel = SKLabelNode(text: "0")
 		scoreLabel.fontSize = 90
@@ -546,54 +547,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 		}else{
 			
-			if let runner = self.runner{
-				if let touchPointX = touches.first?.previousLocation(in: runner.parent!).x{
-					print(touchPointX)
+			if let runner = self.runner, let touchPointX = touches.first?.previousLocation(in: runner.parent!).x{
+				
+				self.lastTouchPointX = touchPointX
+				
+				if touchPointX > runner.position.x {
+					
+					runner.physicsBody?.velocity = CGVector(dx: runnerSpeed, dy: 0)
 					
 					
-					if !((touchPointX - runner.position.x) <= 10) || !((touchPointX - runner.position.x) >= -10){
-						
-						if touchPointX > runner.position.x {
-							
-							print("right")
-						
-							runner.physicsBody?.velocity = CGVector(dx: runnerSpeed, dy: 0)
-							
-						}
-						
-						if touchPointX < runner.position.x{
-							
-							print("left")
-							
-							runner.physicsBody?.velocity = CGVector(dx: -runnerSpeed, dy: 0)
-						}
-						
-					}else{
-						runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-					}
+				}else if touchPointX < runner.position.x{
+					
+					runner.physicsBody?.velocity = CGVector(dx: -runnerSpeed, dy: 0)
+					
 				}
 			}
-			/*if let touch = touches.first, let leftRect = self.leftRect, let rightRect = self.rightRect, let runner = self.runner{
-			
-			let point = touch.location(in: self)
-			
-			if runner.physicsBody!.velocity.dx != CGFloat(0.0){
-			
-			runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-			
-			}
-			
-			if leftRect.contains(point){
-			
-			runner.physicsBody?.applyForce(CGVector(dx: -runnerSpeed, dy: 0))
-			
-			}
-			
-			if rightRect.contains(point){
-			
-			runner.physicsBody?.applyForce(CGVector(dx: runnerSpeed, dy: 0))
-			}
-			}*/
 		}
 	}
 	
@@ -601,7 +569,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		touchesBegan(touches, with: event)
 	}
-	
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		runner?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
@@ -621,11 +588,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	override func update(_ currentTime: TimeInterval) {
 		// Called before each frame is rendered
 		
-		if let runner = self.runner{
-			
-			self.leftRect = CGRect(x: -self.size.width/2, y: -self.size.height/2, width: abs(runner.position.x.distance(to: -self.size.width/2)), height: self.size.height)
-			self.rightRect = CGRect(x: runner.position.x, y: -self.size.height/2, width:  runner.position.x.distance(to: self.size.width/2), height: self.size.height)
-			
+		if let runner = self.runner, let lastTouchPointX = self.lastTouchPointX, let stopingDistance = self.stopingDistance{
+			if lastTouchPointX - runner.position.x <= stopingDistance && lastTouchPointX - runner.position.x >= -stopingDistance{
+				
+				print("stopped")
+				
+				runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+				
+			}
 		}
 	}
 	
