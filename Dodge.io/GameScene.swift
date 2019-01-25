@@ -59,7 +59,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.runner?.physicsBody?.contactTestBitMask = wallsCatagory
 		self.runner?.physicsBody?.collisionBitMask = barrierCatagory
 		
-		self.stopingDistance = runner!.size.width/2
+		self.stopingDistance = runner!.size.width/5
+		
 		
 		let scoreLabel = SKLabelNode(text: "0")
 		scoreLabel.fontSize = 90
@@ -171,8 +172,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				self.score+=1
 				
-				//self.wallMoveDownDuration *= 0.9
-				print(wallMoveDownDuration)
+				differenceInWallResizePerTenthSec += 0.5
 				
 				self.updateScoreLabelToScore()
 			}
@@ -204,6 +204,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	
 	func setupGame(){
+		
 		self.isPaused = true
 		self.systemHasPaused = true
 		self.generateWallTimer?.invalidate()
@@ -245,6 +246,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func endGame(){
+		
 		//so it doesnt register a colsion everysecond and make with into a loop
 		self.runner?.physicsBody?.categoryBitMask = 0x0 << 0
 		self.systemHasPaused = true
@@ -339,9 +341,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.score = 0
 		self.updateScoreLabelToScore()
-		//wallMoveDownDuration = 7
+		restoreSpeed()
 		
-		setupTimers()
+		self.setupTimers()
 		
 		self.systemHasPaused = false
 		self.scene?.isPaused = false
@@ -590,8 +592,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		if let runner = self.runner, let lastTouchPointX = self.lastTouchPointX, let stopingDistance = self.stopingDistance{
 			if lastTouchPointX - runner.position.x <= stopingDistance && lastTouchPointX - runner.position.x >= -stopingDistance{
-				
-				print("stopped")
 				
 				runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
 				

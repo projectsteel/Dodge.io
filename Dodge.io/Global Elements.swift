@@ -15,7 +15,7 @@ var wallMoveDownDuration : Double = 7
 var differenceInWallResizePerTenthSec : CGFloat = 10
 
 public func restoreSpeed(){
-    runnerSpeed = 1000
+    runnerSpeed = 700
     wallMoveDownDuration = 7
     differenceInWallResizePerTenthSec = 10
 }
