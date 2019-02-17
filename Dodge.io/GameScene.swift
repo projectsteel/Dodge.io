@@ -23,7 +23,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	var lastTouchPointX : CGFloat?
 	var slowingDistance : CGFloat?
-	var touchIsOccouring : Bool = false
 	
 	var score : Int = 0
 	var scoreLabel : SKLabelNode?
@@ -61,9 +60,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.runner?.physicsBody?.collisionBitMask = barrierCatagory
 		
 		self.slowingDistance = runner!.size.width/5
-		
-		print(slowingDistance)
-		print(runnerStandardSpeed)
 		
 		
 		let scoreLabel = SKLabelNode(text: "0")
@@ -556,7 +552,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if let runner = self.runner, let touchPointX = touches.first?.previousLocation(in: runner.parent!).x{
 				
 				self.lastTouchPointX = touchPointX
-				self.touchIsOccouring = true
 				
 				if touchPointX > runner.position.x {
 					
@@ -579,7 +574,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		runner?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-		touchIsOccouring = false
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
@@ -602,10 +596,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if lastTouchPointX > runner.position.x {
 	
 					runnerPhysicsBody.velocity = CGVector(dx: -(runnerStandardSpeed/slowingDistance) * (lastTouchPointX.distance(to: runner.position.x)), dy: 0)
-					
-					
+				
+				
 				}else if lastTouchPointX < runner.position.x{
-					
+				
 					runnerPhysicsBody.velocity = CGVector(dx: -(runnerStandardSpeed/slowingDistance) * (lastTouchPointX.distance(to: runner.position.x)), dy: 0)
 					
 				}
