@@ -10,12 +10,12 @@
 import Foundation
 import UIKit
 
-var runnerSpeed : CGFloat = 1000
+var runnerStandardSpeed : CGFloat = 1000
 var wallMoveDownDuration : Double = 7
 var differenceInWallResizePerTenthSec : CGFloat = 10
 
 public func restoreSpeed(){
-    runnerSpeed = 700
+    runnerStandardSpeed = 700
     wallMoveDownDuration = 7
     differenceInWallResizePerTenthSec = 10
 }

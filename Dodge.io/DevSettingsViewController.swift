@@ -22,7 +22,7 @@ class DevSettingsViewController: UIViewController {
         
         if let runnerSpeedString = runnerSpeedTextBox.text{
             if let runnerSpeedInt = Int(runnerSpeedString){
-                runnerSpeed = CGFloat(runnerSpeedInt)
+                runnerStandardSpeed = CGFloat(runnerSpeedInt)
                 runnerSpeedWasUpdated = true
             }
         }

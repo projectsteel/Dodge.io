@@ -22,7 +22,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var wallMoveTimerForUnpausing : Timer?
 	
 	var lastTouchPointX : CGFloat?
-	var stopingDistance : CGFloat?
+	var slowingDistance : CGFloat?
+	var touchIsOccouring : Bool = false
 	
 	var score : Int = 0
 	var scoreLabel : SKLabelNode?
@@ -59,7 +60,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.runner?.physicsBody?.contactTestBitMask = wallsCatagory
 		self.runner?.physicsBody?.collisionBitMask = barrierCatagory
 		
-		self.stopingDistance = runner!.size.width/5
+		self.slowingDistance = runner!.size.width/5
+		
+		print(slowingDistance)
+		print(runnerStandardSpeed)
 		
 		
 		let scoreLabel = SKLabelNode(text: "0")
@@ -552,15 +556,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if let runner = self.runner, let touchPointX = touches.first?.previousLocation(in: runner.parent!).x{
 				
 				self.lastTouchPointX = touchPointX
+				self.touchIsOccouring = true
 				
 				if touchPointX > runner.position.x {
 					
-					runner.physicsBody?.velocity = CGVector(dx: runnerSpeed, dy: 0)
+					runner.physicsBody?.velocity = CGVector(dx: runnerStandardSpeed, dy: 0)
 					
 					
 				}else if touchPointX < runner.position.x{
 					
-					runner.physicsBody?.velocity = CGVector(dx: -runnerSpeed, dy: 0)
+					runner.physicsBody?.velocity = CGVector(dx: -runnerStandardSpeed, dy: 0)
 					
 				}
 			}
@@ -574,13 +579,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		runner?.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+		touchIsOccouring = false
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
 		
 		
 		if (contact.bodyB.categoryBitMask == runnerCatagory &&  contact.bodyA.categoryBitMask == wallsCatagory) || (contact.bodyA.categoryBitMask == runnerCatagory && contact.bodyB.categoryBitMask == wallsCatagory){
-			
 			
 			self.endGame()
 		}
@@ -590,11 +595,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	override func update(_ currentTime: TimeInterval) {
 		// Called before each frame is rendered
 		
-		if let runner = self.runner, let lastTouchPointX = self.lastTouchPointX, let stopingDistance = self.stopingDistance{
-			if lastTouchPointX - runner.position.x <= stopingDistance && lastTouchPointX - runner.position.x >= -stopingDistance{
+		if let runner = self.runner, let lastTouchPointX = self.lastTouchPointX, let slowingDistance = self.slowingDistance, let runnerPhysicsBody = self.runner?.physicsBody, runner.physicsBody?.velocity.dx != 0{
+			
+			if lastTouchPointX - runner.position.x <= slowingDistance && lastTouchPointX - runner.position.x >= -slowingDistance{
 				
-				runner.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-				
+ç				if lastTouchPointX > runner.position.x {
+					
+					runnerPhysicsBody.velocity = CGVector(dx: -(runnerStandardSpeed/slowingDistance) * (lastTouchPointX.distance(to: runner.position.x)), dy: 0)
+					
+					
+				}else if lastTouchPointX < runner.position.x{
+					
+					runnerPhysicsBody.velocity = CGVector(dx: -(runnerStandardSpeed/slowingDistance) * (lastTouchPointX.distance(to: runner.position.x)), dy: 0)
+					
+				}
 			}
 		}
 	}
