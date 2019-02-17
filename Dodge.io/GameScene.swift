@@ -593,16 +593,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			if lastTouchPointX - runner.position.x <= slowingDistance && lastTouchPointX - runner.position.x >= -slowingDistance{
 				
-			if lastTouchPointX > runner.position.x {
-	
-					runnerPhysicsBody.velocity = CGVector(dx: -(runnerStandardSpeed/slowingDistance) * (lastTouchPointX.distance(to: runner.position.x)), dy: 0)
+				runnerPhysicsBody.velocity = CGVector(dx: -(runnerStandardSpeed/slowingDistance) * (lastTouchPointX.distance(to: runner.position.x)), dy: 0)
 				
-				
-				}else if lastTouchPointX < runner.position.x{
-				
-					runnerPhysicsBody.velocity = CGVector(dx: -(runnerStandardSpeed/slowingDistance) * (lastTouchPointX.distance(to: runner.position.x)), dy: 0)
-					
-				}
 			}
 		}
 	}
