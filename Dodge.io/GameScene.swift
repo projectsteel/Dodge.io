@@ -599,8 +599,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			if lastTouchPointX - runner.position.x <= slowingDistance && lastTouchPointX - runner.position.x >= -slowingDistance{
 				
-ç				if lastTouchPointX > runner.position.x {
-					
+			if lastTouchPointX > runner.position.x {
+	
 					runnerPhysicsBody.velocity = CGVector(dx: -(runnerStandardSpeed/slowingDistance) * (lastTouchPointX.distance(to: runner.position.x)), dy: 0)
 					
 					
