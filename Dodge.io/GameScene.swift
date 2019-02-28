@@ -172,7 +172,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				self.score+=1
 				
-				differenceInWallResizePerTenthSec += 0.5
+				wallMoveDownDuration -= 0.05
 				
 				self.updateScoreLabelToScore()
 			}
