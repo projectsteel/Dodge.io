@@ -18,8 +18,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var runnerCatagory : UInt32 = 0x1 << 2
 	var barrierCatagory : UInt32 = 0x1 << 3
 	
-	var generateWallTimer : Timer?
 	var wallMoveTimerForUnpausing : Timer?
+	var timeOfLastWallGeneration: CFTimeInterval = 0.0
 	
 	var lastTouchPointX : CGFloat?
 	var slowingDistance : CGFloat?
@@ -69,17 +69,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.scoreLabel = scoreLabel
 		self.addChild(self.scoreLabel!)
 		
-		
-		self.setupTimers()
-		
 		self.setupGame()
-		
-		
 	}
 	
-	func setupTimers(){
-		self.generateWallTimer = Timer.scheduledTimer(timeInterval: wallMoveDownDuration/2.5, target: self, selector: #selector(createWall), userInfo: nil, repeats: true)
-	}
 	
 	func createBarriers(){
 		
@@ -172,7 +164,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				self.score+=1
 				
-				wallMoveDownDuration -= 0.05
+				//wallMoveDownDuration -= 0.05
 				
 				self.updateScoreLabelToScore()
 			}
@@ -207,8 +199,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.isPaused = true
 		self.systemHasPaused = true
-		self.generateWallTimer?.invalidate()
-		
 		
 		if let scoreLabel = self.scoreLabel{
 			scoreLabel.text = ""
@@ -237,11 +227,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		gameOverLabel.position = CGPoint(x: 0, y: bestScoreLabel.fontSize/2 + 140)
 		gameOverLabel.fontSize = 140
 		
-		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
+		sleep(UInt32(0.01))
 			
-			self.addChild(gameOverLabel)
-			
-		}
+		self.addChild(gameOverLabel)
+		
 		
 	}
 	
@@ -254,7 +243,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.runner?.physicsBody?.pinned = true
 		self.runner?.isPaused = false
-		self.generateWallTimer?.invalidate()
 		self.wallMoveTimerForUnpausing?.invalidate()
 		
 		for node in self.children{
@@ -310,11 +298,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			scoreLabel.text = ""
 		}
 		
-		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
+		sleep(UInt32(0.01))
 			
-			self.addChild(gameOverLabel)
-			
-		}
+		self.addChild(gameOverLabel)
+		
 	}
 	
 	func resetGame(){
@@ -343,8 +330,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.updateScoreLabelToScore()
 		restoreSpeed()
 		
-		self.setupTimers()
-		
 		self.systemHasPaused = false
 		self.scene?.isPaused = false
 	}
@@ -353,7 +338,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.scene?.isPaused = true
 		self.userHasPaused = true
-		self.generateWallTimer?.invalidate()
+		self.timeOfLastWallGeneration = 0.0
 		
 		let gameOverLabel =  SKLabelNode()
 		
@@ -378,9 +363,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func unpauseGame(){
-		
-		self.setupTimers()
-		
 		
 		var leftWalls : [SKSpriteNode] = []
 		var rightWalls : [SKSpriteNode] = []
@@ -597,6 +579,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 			}
 		}
+		
+		if (currentTime - self.timeOfLastWallGeneration) >  wallMoveDownDuration/2.5{
+			
+			createWall()
+			
+			self.timeOfLastWallGeneration = currentTime
+		}
+		
 	}
 	
 	func appDidSuspend(){
