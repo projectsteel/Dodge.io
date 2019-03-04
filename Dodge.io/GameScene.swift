@@ -10,15 +10,17 @@ import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
 	
-	var leftBarrier : SKSpriteNode?
-	var rightBarrier : SKSpriteNode?
+	var superNode = SKNode()
+	
+	var leftBarrier : SKNode?
+	var rightBarrier : SKNode?
 	var runner : SKSpriteNode?
 	
 	var wallsCatagory : UInt32 = 0x1 << 1
 	var runnerCatagory : UInt32 = 0x1 << 2
 	var barrierCatagory : UInt32 = 0x1 << 3
 	
-	var wallMoveTimerForUnpausing : Timer?
+	
 	var timeOfLastWallGeneration: CFTimeInterval = 0.0
 	
 	var lastTouchPointX : CGFloat?
@@ -29,11 +31,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	var userHasPaused : Bool = false
 	var systemHasPaused : Bool = false
-	var systemIsFuckingWithMeaningOfTheWordPause : Bool = false
-	
 	
 	
 	override func didMove(to view: SKView) {
+		self.isPaused = true
+		self.addChild(superNode)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -42,8 +44,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.physicsWorld.contactDelegate = self
 		
-		self.leftBarrier = self.childNode(withName: "leftBarrier") as? SKSpriteNode
-		self.rightBarrier = self.childNode(withName: "rightBarrier") as? SKSpriteNode
+		self.leftBarrier = self.childNode(withName: "leftBarrier")
+		self.rightBarrier = self.childNode(withName: "rightBarrier")
 		
 		self.leftBarrier?.physicsBody?.categoryBitMask = barrierCatagory
 		self.rightBarrier?.physicsBody?.categoryBitMask = barrierCatagory
@@ -55,6 +57,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.runner = self.childNode(withName: "runner") as? SKSpriteNode
 		
+		self.runner?.alpha = 0.0
 		self.runner?.physicsBody?.categoryBitMask = runnerCatagory
 		self.runner?.physicsBody?.contactTestBitMask = wallsCatagory
 		self.runner?.physicsBody?.collisionBitMask = barrierCatagory
@@ -134,279 +137,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		leftWall.physicsBody?.allowsRotation = false
 		rightWall.physicsBody?.allowsRotation = false
 		
-		self.addChild(leftWall)
-		self.addChild(rightWall)
+		self.superNode.addChild(leftWall)
+		self.superNode.addChild(rightWall)
 		
 		self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: false)
 		
-	}
-	
-	
-	func updateWallsPhysicsBodies(nodes: [SKSpriteNode]){
-		for node in nodes{
-			
-			node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
-			
-			
-			node.physicsBody?.categoryBitMask = self.wallsCatagory
-			node.physicsBody?.contactTestBitMask = self.runnerCatagory
-			node.physicsBody?.collisionBitMask = 0x1 << 0
-			node.physicsBody?.affectedByGravity = false
-			node.physicsBody?.allowsRotation = false
-			
-		}
-	}
-	
-	func checkForNewPoints(node: SKSpriteNode){
-		if let runner = self.runner{
-			
-			if ((node.position.y - runner.position.y) < 5) && ((node.position.y - runner.position.y) > -5) {
-				
-				self.score+=1
-				
-				//wallMoveDownDuration -= 0.05
-				
-				self.updateScoreLabelToScore()
-			}
-		}
-	}
-	
-	func generateRandomNumber(min: Int, max: Int) -> CGFloat {
-		let randomNum = CGFloat(Int.random(in: min...max))
-		
-		return randomNum
-	}
-	
-	func updateScoreLabelToScore(){
-		if self.isPaused == false && self.systemIsFuckingWithMeaningOfTheWordPause == false{
-			if let scoreLabel = self.scoreLabel{
-				
-				let currentTotal = UserDefaults.standard.integer(forKey: "currentTotal")
-				UserDefaults.standard.set(currentTotal + 1, forKey: "currentTotal")
-				
-				let currentRecord = UserDefaults.standard.integer(forKey: "currentRecord")
-				if score > currentRecord{
-					UserDefaults.standard.set(score, forKey: "currentRecord")
-				}
-				
-				scoreLabel.text = String(describing: score)
-			}
-		}
-	}
-	
-	
-	func setupGame(){
-		
-		self.isPaused = true
-		self.systemHasPaused = true
-		
-		if let scoreLabel = self.scoreLabel{
-			scoreLabel.text = ""
-		}
-		
-		
-		let playButton = SKSpriteNode(imageNamed:"play-button.png")
-		playButton.name = "Play Button"
-		playButton.position = CGPoint(x: 0, y: -300)
-		playButton.size = CGSize(width: 150, height: 150)
-		
-		self.addChild(playButton)
-		
-		let bestScoreLabel = SKLabelNode()
-		bestScoreLabel.name = "Best Score Label"
-		bestScoreLabel.position = CGPoint(x: 0, y: 0)
-		bestScoreLabel.fontSize = 70
-		bestScoreLabel.text = "High Score: \(UserDefaults.standard.integer(forKey: "currentRecord"))"
-		
-		self.addChild(bestScoreLabel)
-		
-		let gameOverLabel =  SKLabelNode()
-		
-		gameOverLabel.text = "Dodge.io"
-		gameOverLabel.name = "Game Over Label"
-		gameOverLabel.position = CGPoint(x: 0, y: bestScoreLabel.fontSize/2 + 140)
-		gameOverLabel.fontSize = 140
-		
-		sleep(UInt32(0.01))
-			
-		self.addChild(gameOverLabel)
-		
-		
-	}
-	
-	func endGame(){
-		
-		//so it doesnt register a colsion everysecond and make with into a loop
-		self.runner?.physicsBody?.categoryBitMask = 0x0 << 0
-		self.systemHasPaused = true
-		self.systemIsFuckingWithMeaningOfTheWordPause = true
-		
-		self.runner?.physicsBody?.pinned = true
-		self.runner?.isPaused = false
-		self.wallMoveTimerForUnpausing?.invalidate()
-		
-		for node in self.children{
-			
-			if node.name == "leftWall" || node.name == "rightWall"{
-				node.removeAllActions()
-				node.isPaused = true
-			}
-			
-			if node == self.children.last{
-				
-				if self.runner?.alpha == 1.0{
-					self.runner?.run(SKAction.fadeAlpha(to: -1.0, duration: 0.75)){
-						
-						self.scene?.isPaused = true
-						
-						self.systemIsFuckingWithMeaningOfTheWordPause = false
-						
-					}
-				}else{
-					
-					self.scene?.isPaused = true
-					
-					self.systemIsFuckingWithMeaningOfTheWordPause = false
-					
-				}
-			}
-		}
-		
-		
-		let playButton = SKSpriteNode(imageNamed:"play-button.png")
-		playButton.name = "Play Button"
-		playButton.position = CGPoint(x: 0, y: -300)
-		playButton.size = CGSize(width: 150, height: 150)
-		
-		self.addChild(playButton)
-		
-		let bestScoreLabel = SKLabelNode()
-		bestScoreLabel.name = "Best Score Label"
-		bestScoreLabel.position = CGPoint(x: 0, y: 0)
-		bestScoreLabel.fontSize = 70
-		bestScoreLabel.text = "Score: \(score)"
-		
-		self.addChild(bestScoreLabel)
-		
-		let gameOverLabel =  SKLabelNode()
-		gameOverLabel.text = "Game Over!"
-		gameOverLabel.name = "Game Over Label"
-		gameOverLabel.position = CGPoint(x: 0, y: bestScoreLabel.fontSize/2 + 140)
-		gameOverLabel.fontSize = 140
-		
-		if let scoreLabel = self.scoreLabel{
-			scoreLabel.text = ""
-		}
-		
-		sleep(UInt32(0.01))
-			
-		self.addChild(gameOverLabel)
-		
-	}
-	
-	func resetGame(){
-		
-		
-		let nodes = self.children
-		
-		for node in nodes{
-			if node.physicsBody?.categoryBitMask == wallsCatagory || node.name == "Play Button" || node.name == "Game Over Label" || node.name == "Best Score Label"{
-				
-				node.removeFromParent()
-			}
-		}
-		
-		self.runner?.isPaused = false
-		self.runner?.run(SKAction.fadeIn(withDuration: 0.25), completion: {
-			self.runner?.isPaused = true
-			
-		})
-		
-		self.runner?.physicsBody?.pinned = false
-		self.runner?.physicsBody?.categoryBitMask = runnerCatagory
-		self.runner?.position.x = 0
-		
-		self.score = 0
-		self.updateScoreLabelToScore()
-		restoreSpeed()
-		
-		self.systemHasPaused = false
-		self.scene?.isPaused = false
-	}
-	
-	func pauseGame(){
-		
-		self.scene?.isPaused = true
-		self.userHasPaused = true
-		self.timeOfLastWallGeneration = 0.0
-		
-		let gameOverLabel =  SKLabelNode()
-		
-		gameOverLabel.text = "Paused"
-		gameOverLabel.name = "Game Over Label"
-		gameOverLabel.position = CGPoint(x: 0, y: 0)
-		gameOverLabel.fontSize = 120
-		
-		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
-			
-			self.addChild(gameOverLabel)
-			
-		}
-		
-		let playButton = SKSpriteNode(imageNamed:"play-button.png")
-		playButton.name = "Play Button"
-		playButton.position = CGPoint(x: 0, y: -300)
-		playButton.size = CGSize(width: 150, height: 150)
-		
-		self.addChild(playButton)
-		
-	}
-	
-	func unpauseGame(){
-		
-		var leftWalls : [SKSpriteNode] = []
-		var rightWalls : [SKSpriteNode] = []
-		var walls : [[SKSpriteNode]] = []
-		
-		let nodes = self.children
-		
-		for node in nodes{
-			if node.name == "Play Button" || node.name == "Game Over Label"{
-				
-				node.removeFromParent()
-			}else if node.name == "leftWall"{
-				leftWalls.append(node as! SKSpriteNode)
-			}else if node.name == "rightWall"{
-				rightWalls.append(node as! SKSpriteNode)
-			}
-		}
-		
-		for leftWall in leftWalls{
-			for rightWall in rightWalls{
-				if leftWall.position.y == rightWall.position.y{
-					walls.append([leftWall, rightWall])
-					break
-				}
-			}
-		}
-		
-		
-		self.scene?.isPaused = false
-		self.reSetupWallMotion(wallss: walls)
-		self.userHasPaused = false
-		
-	}
-	
-	
-	func reSetupWallMotion(wallss: [[SKSpriteNode]]){
-		
-		for walls in wallss{
-			
-			let leftWall = walls[0]
-			let rightWall = walls[1]
-			
-			self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: true)
-		}
 	}
 	
 	func setupWallMotion(leftWall: SKSpriteNode, rightWall: SKSpriteNode, isRecovingExistingWalls: Bool){
@@ -475,13 +210,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 			self.checkForNewPoints(node: leftWall)
 			
-			if leftWall.parent != self{
+			if leftWall.parent != self.superNode{
 				timer.invalidate()
 			}
 		})
 		
 		
-		if isRecovingExistingWalls == false{
+		if !isRecovingExistingWalls{
 			
 			let moveDown = SKAction.moveBy(x: 0, y: -self.size.height + leftWall.frame.height, duration: wallMoveDownDuration)
 			
@@ -499,12 +234,241 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				setupWallMotionTimer.invalidate()
 				
+			}
+		}
+	}
+	
+	func updateWallsPhysicsBodies(nodes: [SKSpriteNode]){
+		
+		for node in nodes{
+			
+			node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
+			
+			
+			node.physicsBody?.categoryBitMask = self.wallsCatagory
+			node.physicsBody?.contactTestBitMask = self.runnerCatagory
+			node.physicsBody?.collisionBitMask = 0x1 << 0
+			node.physicsBody?.affectedByGravity = false
+			node.physicsBody?.allowsRotation = false
+			
+		}
+	}
+	
+	func checkForNewPoints(node: SKSpriteNode){
+		if let runner = self.runner{
+			
+			if ((node.position.y - runner.position.y) < 5) && ((node.position.y - runner.position.y) > -5) {
 				
+				self.score+=1
 				
+				//wallMoveDownDuration -= 0.05
+				
+				self.updateScoreLabelToScore()
+			}
+		}
+	}
+	
+	func generateRandomNumber(min: Int, max: Int) -> CGFloat {
+		let randomNum = CGFloat(Int.random(in: min...max))
+		
+		return randomNum
+	}
+	
+	func updateScoreLabelToScore(){
+
+		if !self.isPaused && !self.superNode.isPaused{
+			if let scoreLabel = self.scoreLabel{
+				
+				let currentTotal = UserDefaults.standard.integer(forKey: "currentTotal")
+				UserDefaults.standard.set(currentTotal + 1, forKey: "currentTotal")
+				
+				let currentRecord = UserDefaults.standard.integer(forKey: "currentRecord")
+				if score > currentRecord{
+					UserDefaults.standard.set(score, forKey: "currentRecord")
+				}
+				
+				scoreLabel.text = String(describing: score)
+			}
+		}
+	}
+	
+	
+	func setupGame(){
+		
+		self.isPaused = true
+		self.systemHasPaused = true
+		
+		if let scoreLabel = self.scoreLabel{
+			scoreLabel.text = ""
+		}
+		
+		
+		let playButton = SKSpriteNode(imageNamed:"play-button.png")
+		playButton.name = "Play Button"
+		playButton.position = CGPoint(x: 0, y: -300)
+		playButton.size = CGSize(width: 150, height: 150)
+		
+		self.superNode.addChild(playButton)
+		
+		let bestScoreLabel = SKLabelNode()
+		bestScoreLabel.name = "Best Score Label"
+		bestScoreLabel.position = CGPoint(x: 0, y: 0)
+		bestScoreLabel.fontSize = 70
+		bestScoreLabel.text = "High Score: \(UserDefaults.standard.integer(forKey: "currentRecord"))"
+		
+		self.superNode.addChild(bestScoreLabel)
+		
+		let gameOverLabel =  SKLabelNode()
+		
+		gameOverLabel.text = "Dodge.io"
+		gameOverLabel.name = "Game Over Label"
+		gameOverLabel.position = CGPoint(x: 0, y: bestScoreLabel.fontSize/2 + 140)
+		gameOverLabel.fontSize = 140
+		
+		sleep(UInt32(0.01))
+			
+		self.superNode.addChild(gameOverLabel)
+		
+	}
+	
+	func endGame(){
+		
+		//so it doesnt register a colsion everysecond and make with into a loop
+		self.runner?.physicsBody?.categoryBitMask = 0x0 << 0
+		self.systemHasPaused = true
+		self.superNode.isPaused = true
+		self.runner?.physicsBody?.pinned = true
+		
+		self.runner?.run(SKAction.fadeOut(withDuration: 0.75)){
+			self.isPaused = true
+			self.runner?.removeAllActions()
+			self.runner?.physicsBody?.pinned = false
+			self.superNode.isPaused = false
+		}
+		
+		let playButton = SKSpriteNode(imageNamed:"play-button.png")
+		playButton.name = "Play Button"
+		playButton.position = CGPoint(x: 0, y: -300)
+		playButton.size = CGSize(width: 150, height: 150)
+		
+		self.superNode.addChild(playButton)
+		
+		let bestScoreLabel = SKLabelNode()
+		bestScoreLabel.name = "Best Score Label"
+		bestScoreLabel.position = CGPoint(x: 0, y: 0)
+		bestScoreLabel.fontSize = 70
+		bestScoreLabel.text = "Score: \(score)"
+		
+		self.superNode.addChild(bestScoreLabel)
+		
+		let gameOverLabel =  SKLabelNode()
+		gameOverLabel.text = "Game Over!"
+		gameOverLabel.name = "Game Over Label"
+		gameOverLabel.position = CGPoint(x: 0, y: bestScoreLabel.fontSize/2 + 140)
+		gameOverLabel.fontSize = 140
+		
+		if let scoreLabel = self.scoreLabel{
+			scoreLabel.text = ""
+		}
+		
+		sleep(UInt32(0.01))
+			
+		self.superNode.addChild(gameOverLabel)
+		
+	}
+	
+	func resetGame(){
+		superNode.removeAllChildren()
+		
+		self.runner?.run(SKAction.fadeIn(withDuration: 0.25))
+		
+		self.runner?.physicsBody?.pinned = false
+		self.runner?.physicsBody?.categoryBitMask = runnerCatagory
+		self.runner?.position.x = 0
+		
+		self.score = 0
+		self.updateScoreLabelToScore()
+		restoreSpeed()
+		
+		self.systemHasPaused = false
+		self.scene?.isPaused = false
+	}
+	
+	func pauseGame(){
+		
+		self.scene?.isPaused = true
+		self.userHasPaused = true
+		self.timeOfLastWallGeneration = 0.0
+		
+		let gameOverLabel =  SKLabelNode()
+		
+		gameOverLabel.text = "Paused"
+		gameOverLabel.name = "Game Over Label"
+		gameOverLabel.position = CGPoint(x: 0, y: 0)
+		gameOverLabel.fontSize = 120
+		
+		Timer.scheduledTimer(withTimeInterval: 0.01, repeats: false) { (timer) in
+			
+			self.addChild(gameOverLabel)
+			
+		}
+		
+		let playButton = SKSpriteNode(imageNamed:"play-button.png")
+		playButton.name = "Play Button"
+		playButton.position = CGPoint(x: 0, y: -300)
+		playButton.size = CGSize(width: 150, height: 150)
+		
+		self.superNode.addChild(playButton)
+		
+	}
+	
+	func unpauseGame(){
+		
+		var leftWalls : [SKSpriteNode] = []
+		var rightWalls : [SKSpriteNode] = []
+		var walls : [[SKSpriteNode]] = []
+		
+		let nodes = self.superNode.children
+		
+		for node in nodes{
+			if node.name == "Play Button" || node.name == "Game Over Label"{
+				
+				node.removeFromParent()
+			}else if node.name == "leftWall"{
+				leftWalls.append(node as! SKSpriteNode)
+			}else if node.name == "rightWall"{
+				rightWalls.append(node as! SKSpriteNode)
 			}
 		}
 		
+		for leftWall in leftWalls{
+			for rightWall in rightWalls{
+				if leftWall.position.y == rightWall.position.y{
+					walls.append([leftWall, rightWall])
+					break
+				}
+			}
+		}
+		
+		
+		self.scene?.isPaused = false
+		self.reSetupWallMotion(wallss: walls)
+		self.userHasPaused = false
+		
 	}
+	
+	
+	func reSetupWallMotion(wallss: [[SKSpriteNode]]){
+		
+		for walls in wallss{
+			
+			let leftWall = walls[0]
+			let rightWall = walls[1]
+			
+			self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: true)
+		}
+	}
+	
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		
@@ -560,7 +524,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func didBegin(_ contact: SKPhysicsContact) {
 		
-		
 		if (contact.bodyB.categoryBitMask == runnerCatagory &&  contact.bodyA.categoryBitMask == wallsCatagory) || (contact.bodyA.categoryBitMask == runnerCatagory && contact.bodyB.categoryBitMask == wallsCatagory){
 			
 			self.endGame()
@@ -599,16 +562,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func appDidRenenstate(){
 		
-		if self.systemIsFuckingWithMeaningOfTheWordPause{
+		if self.superNode.isPaused{
 			self.isPaused = true
 			
-			for node in self.children{
+			for node in self.superNode.children{
 				
 				if node.name == "leftWall" || node.name == "rightWall"{
 					node.removeAllActions()
 				}
 				
-				if node == self.children.last{
+				if node == self.superNode.children.last{
 					
 					self.isPaused = false
 				}
