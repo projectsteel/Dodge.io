@@ -20,10 +20,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var runnerCatagory : UInt32 = 0x1 << 2
 	var barrierCatagory : UInt32 = 0x1 << 3
 	
-	var timeOfLastWallGeneration: TimeInterval = 0.0
-	var timeOfLastWallUpdate: TimeInterval = 0.0
+	var timeOfLastWallGeneration : TimeInterval = 0.0
+	var timeOfLastWallUpdate : TimeInterval = 0.0
 	var timeOfLastWallReaping :  TimeInterval = 0.0
+	var timerOfLastWallSideMotion : TimeInterval = 0.0
 	var wallss : [[SKSpriteNode]] = []
+	var wallssWillMoveLeft : [Bool] = []
 	
 	var lastTouchPointX : CGFloat?
 	var slowingDistance : CGFloat?
@@ -143,6 +145,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.superNode.addChild(rightWall)
 		
 		self.wallss.append([leftWall, rightWall])
+		self.wallssWillMoveLeft.append(Bool.random())
 		self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: false)
 		
 	}
@@ -151,7 +154,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		var willMoveLeft = Bool.random()
 		
-		let setupWallMotionTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { (timer) in
+		/*let setupWallMotionTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { (timer) in
 			//update position and width
 			if self.isPaused{
 				
@@ -192,7 +195,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 			}
 			
-		}
+		}*/
 		
 		
 		if !isRecovingExistingWalls{
@@ -203,7 +206,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				leftWall.removeFromParent()
 				
-				setupWallMotionTimer.invalidate()
+				//setupWallMotionTimer.invalidate()
 				
 			}
 			
@@ -211,7 +214,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				rightWall.removeFromParent()
 				
-				setupWallMotionTimer.invalidate()
+				// setupWallMotionTimer.invalidate()
 				
 			}
 		}
@@ -254,7 +257,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func updateScoreLabelToScore(){
-
+		
 		if !self.isPaused && !self.superNode.isPaused{
 			if let scoreLabel = self.scoreLabel{
 				
@@ -305,7 +308,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		gameOverLabel.fontSize = 140
 		
 		sleep(UInt32(0.01))
-			
+		
 		self.superNode.addChild(gameOverLabel)
 		
 	}
@@ -351,7 +354,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		sleep(UInt32(0.01))
-			
+		
 		self.superNode.addChild(gameOverLabel)
 		
 	}
@@ -521,7 +524,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 		
 		if (currentTime - self.timeOfLastWallGeneration) >  wallMoveDownDuration/2.5{
-		
+			
 			createWall()
 			
 			self.timeOfLastWallGeneration = currentTime
@@ -552,14 +555,64 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					}
 					
 					wallss.remove(at: i)
+					wallssWillMoveLeft.remove(at: i)
 				}
 				
 				i+=1
-				self.timeOfLastWallReaping = currentTime
+				
 			}
+		self.timeOfLastWallReaping = currentTime
+		}
+		if (currentTime - self.timerOfLastWallSideMotion) > 0.01{
+			var i = 0
+			if wallss.count != wallssWillMoveLeft.count{
+				print("die!")
+			}
+			for walls in self.wallss{
+				if wallssWillMoveLeft[i]{
+					
+					if walls[0].size.width > 5{
+						
+						walls[1].run(SKAction.resize(toWidth: walls[1].size.width + differenceInWallResizePerTenthSec, duration: 0.1))
+						
+						walls[0].run(SKAction.resize(toWidth: walls[0].size.width - differenceInWallResizePerTenthSec, duration: 0.1)){
+							
+							if walls[0].size.width <= 5{
+								if i <= self.wallssWillMoveLeft.count{
+									self.wallssWillMoveLeft[i] = false
+									
+								}else{
+									print("die!")
+								}
+							}
+						}
+						
+					}
+					
+				}else{
+					
+					if walls[1].size.width > 5{
+						
+						walls[0].run(SKAction.resize(toWidth: walls[0].size.width + differenceInWallResizePerTenthSec, duration: 0.1))
+						
+						walls[1].run(SKAction.resize(toWidth: walls[1].size.width - differenceInWallResizePerTenthSec, duration: 0.1)){
+							
+							if walls[1].size.width <= 5{
+								
+								self.wallssWillMoveLeft[i] = true
+							}
+						}
+					}
+				}
+				
+				i+=1
+			}
+		self.timerOfLastWallSideMotion = currentTime
 		}
 		
-	}
+}
+	
+	
 	
 	func appDidSuspend(){
 		
@@ -570,7 +623,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func appDidRenenstate(){
 		
-			self.isPaused = true
+		self.isPaused = true
 		
 	}
 	
@@ -596,7 +649,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	@objc func didBecomeActive() {
 		// Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
 		self.appDidRenenstate()
-	
+		
 	}
 	
 	@objc func willTerminate() {
