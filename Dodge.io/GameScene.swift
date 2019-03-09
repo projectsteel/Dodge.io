@@ -146,6 +146,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.wallss.append([leftWall, rightWall])
 		self.wallssWillMoveLeft.append(Bool.random())
+		
 		self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: false)
 		
 	}
