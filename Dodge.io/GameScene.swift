@@ -116,10 +116,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	@objc func createWall() {
 		
-		let breakPoint = generateRandomNumber(min: 5, max: Int(self.size.width) - 175)
+		let breakPoint = generateRandomNumber(min: 5, max: self.size.width - (gapDistance + minimumWallWidth))
 		
 		let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: 2 * breakPoint, height: 30))
-		let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width:2 * (self.size.width - (breakPoint + 170)), height: 30))
+		let rightWall = SKSpriteNode(color: .cyan, size: CGSize(width:2 * (self.size.width - (breakPoint + CGFloat(gapDistance))), height: 30))
 		
 		leftWall.name = "leftWall"
 		rightWall.name = "rightWall"
@@ -144,78 +144,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.superNode.addChild(leftWall)
 		self.superNode.addChild(rightWall)
 		
-		self.wallss.append([leftWall, rightWall])
-		self.wallssWillMoveLeft.append(Bool.random())
+		let willMoveLeft = Bool.random()
 		
-		self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: false)
+		self.wallssWillMoveLeft.append(willMoveLeft)
+		self.wallss.append([leftWall, rightWall])
+		
+		
+		self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, willMoveLeft: !willMoveLeft, isRecovingExistingWalls: false)
 		
 	}
 	
-	func setupWallMotion(leftWall: SKSpriteNode, rightWall: SKSpriteNode, isRecovingExistingWalls: Bool){
-		
-		var willMoveLeft = Bool.random()
-		
-		/*let setupWallMotionTimer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { (timer) in
-			//update position and width
-			if self.isPaused{
-				
-				timer.invalidate()
-				
-			}else{
-				if willMoveLeft{
-					
-					if leftWall.size.width > 5{
-						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width + differenceInWallResizePerTenthSec, duration: 0.1))
-						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width - differenceInWallResizePerTenthSec, duration: 0.1)){
-							
-							if leftWall.size.width <= 5{
-								
-								willMoveLeft = false
-							}
-						}
-						
-					}
-					
-				}else{
-					
-					if rightWall.size.width > 5{
-						
-						leftWall.run(SKAction.resize(toWidth: leftWall.size.width + differenceInWallResizePerTenthSec, duration: 0.1))
-						
-						rightWall.run(SKAction.resize(toWidth: rightWall.size.width - differenceInWallResizePerTenthSec, duration: 0.1)){
-							
-							if rightWall.size.width <= 5{
-								
-								willMoveLeft = true
-							}
-						}
-					}
-				}
-				
-			}
+	func setupWallMotion(leftWall: SKSpriteNode, rightWall: SKSpriteNode, willMoveLeft: Bool, isRecovingExistingWalls: Bool){
+		if willMoveLeft{
 			
-		}*/
-		
+			leftWall.run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: secsToMoveGap))
+			
+			rightWall.run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: secsToMoveGap))
+			
+			
+		}else{
+			
+			leftWall.run(SKAction.resize(toWidth: (self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2, duration: secsToMoveGap))
+			
+			rightWall.run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2), duration: secsToMoveGap))
+			
+		}
 		
 		if !isRecovingExistingWalls{
 			
-			let moveDown = SKAction.moveBy(x: 0, y: -self.size.height + leftWall.frame.height, duration: wallMoveDownDuration)
+			let moveDown = SKAction.moveBy(x: 0, y: -self.size.height - leftWall.frame.height, duration: wallMoveDownDuration)
 			
 			leftWall.run(moveDown){
 				
 				leftWall.removeFromParent()
-				
-				//setupWallMotionTimer.invalidate()
 				
 			}
 			
 			rightWall.run(moveDown){
 				
 				rightWall.removeFromParent()
-				
-				// setupWallMotionTimer.invalidate()
 				
 			}
 		}
@@ -251,8 +218,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		}
 	}
 	
-	func generateRandomNumber(min: Int, max: Int) -> CGFloat {
-		let randomNum = CGFloat(Int.random(in: min...max))
+	func generateRandomNumber(min: CGFloat, max: CGFloat) -> CGFloat {
+		let randomNum = CGFloat(CGFloat.random(in: min...max))
 		
 		return randomNum
 	}
@@ -444,7 +411,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			let leftWall = walls[0]
 			let rightWall = walls[1]
 			
-			self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: true)
+			self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, willMoveLeft: Bool.random(), isRecovingExistingWalls: true)
 		}
 	}
 	
@@ -562,56 +529,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				i+=1
 				
 			}
-		self.timeOfLastWallReaping = currentTime
-		}
-		if (currentTime - self.timerOfLastWallSideMotion) > 0.01{
-			var i = 0
-			if wallss.count != wallssWillMoveLeft.count{
-				print("die!")
-			}
-			for walls in self.wallss{
-				if wallssWillMoveLeft[i]{
-					
-					if walls[0].size.width > 5{
-						
-						walls[1].run(SKAction.resize(toWidth: walls[1].size.width + differenceInWallResizePerTenthSec, duration: 0.1))
-						
-						walls[0].run(SKAction.resize(toWidth: walls[0].size.width - differenceInWallResizePerTenthSec, duration: 0.1)){
-							
-							if walls[0].size.width <= 5{
-								if i <= self.wallssWillMoveLeft.count{
-									self.wallssWillMoveLeft[i] = false
-									
-								}else{
-									print("die!")
-								}
-							}
-						}
-						
-					}
-					
-				}else{
-					
-					if walls[1].size.width > 5{
-						
-						walls[0].run(SKAction.resize(toWidth: walls[0].size.width + differenceInWallResizePerTenthSec, duration: 0.1))
-						
-						walls[1].run(SKAction.resize(toWidth: walls[1].size.width - differenceInWallResizePerTenthSec, duration: 0.1)){
-							
-							if walls[1].size.width <= 5{
-								
-								self.wallssWillMoveLeft[i] = true
-							}
-						}
-					}
-				}
-				
-				i+=1
-			}
-		self.timerOfLastWallSideMotion = currentTime
+			self.timeOfLastWallReaping = currentTime
 		}
 		
-}
+		var i = 0
+		
+		for walls in self.wallss{
+			
+			if wallssWillMoveLeft[i]{
+				
+				if walls[1].size.width == CGFloat(minimumWallWidth * 2){
+					
+					walls[0].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: secsToMoveGap))
+					
+					walls[1].run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: secsToMoveGap))
+					
+					self.wallssWillMoveLeft[i] = false
+					
+					
+				}
+				
+			}else{
+				
+				if walls[0].size.width == CGFloat(minimumWallWidth * 2){
+					
+					walls[0].run(SKAction.resize(toWidth: (self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2, duration: secsToMoveGap))
+					
+					walls[1].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2), duration: secsToMoveGap))
+					
+					
+					self.wallssWillMoveLeft[i] = true
+					
+				}
+			}
+			
+			i+=1
+		}
+		
+		
+	}
 	
 	
 	
