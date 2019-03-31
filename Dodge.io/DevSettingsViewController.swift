@@ -18,7 +18,7 @@ class DevSettingsViewController: UIViewController {
         
         var runnerSpeedWasUpdated : Bool = false
         var wallMoveDownDurationWasUpdated : Bool = false
-        var differenceInWallResizePerTenthSecWasUpdated : Bool = false
+       // var differenceInWallResizePerTenthSecWasUpdated : Bool = false
         
         if let runnerSpeedString = runnerSpeedTextBox.text{
             if let runnerSpeedInt = Int(runnerSpeedString){
@@ -34,7 +34,7 @@ class DevSettingsViewController: UIViewController {
             }
         }
     
-        if let gapDiffPerTenthSecString = gapDiffPerTenthSecTextBox.text{
+        /*if let gapDiffPerTenthSecString = gapDiffPerTenthSecTextBox.text{
             if let gapDiffPerTenthSecInt = Int(gapDiffPerTenthSecString){
                 differenceInWallResizePerTenthSec = CGFloat(gapDiffPerTenthSecInt)
                 differenceInWallResizePerTenthSecWasUpdated = true
@@ -50,7 +50,7 @@ class DevSettingsViewController: UIViewController {
         
         alertController.addAction(okButton)
         
-        self.present(alertController, animated: true, completion: nil)
+        self.present(alertController, animated: true, completion: nil)*/
         
     }
     
