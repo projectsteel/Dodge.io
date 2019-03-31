@@ -25,7 +25,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var timeOfLastWallReaping :  TimeInterval = 0.0
 	var timerOfLastWallSideMotion : TimeInterval = 0.0
 	var wallss : [[SKSpriteNode]] = []
-	var wallssWillMoveLeft : [Bool] = []
 	
 	var lastTouchPointX : CGFloat?
 	var slowingDistance : CGFloat?
@@ -144,29 +143,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.superNode.addChild(leftWall)
 		self.superNode.addChild(rightWall)
 		
-		let willMoveLeft = Bool.random()
-		
-		self.wallssWillMoveLeft.append(willMoveLeft)
 		self.wallss.append([leftWall, rightWall])
 		
-		
-		self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, willMoveLeft: !willMoveLeft, isRecovingExistingWalls: false)
-		
+		self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: false)
 	}
 	
-	func setupWallMotion(leftWall: SKSpriteNode, rightWall: SKSpriteNode, willMoveLeft: Bool, isRecovingExistingWalls: Bool){
-		let trimedSecsToMoveGap = TimeInterval((CGFloat(secsToMoveGap) / self.size.width) * (leftWall.size.width/2 - minimumWallWidth))
+	func setupWallMotion(leftWall: SKSpriteNode, rightWall: SKSpriteNode, isRecovingExistingWalls: Bool){
+		var trimedSecsToMoveGap : TimeInterval = 0
+
+		let directionToMove = Bool.random()
 		
-		if willMoveLeft{
+		if directionToMove{
+			
+			trimedSecsToMoveGap = TimeInterval((CGFloat(secsToMoveGap) / self.size.width) * (leftWall.size.width/2 - minimumWallWidth))
 			
 			leftWall.run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: trimedSecsToMoveGap))
-			
 			rightWall.run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: trimedSecsToMoveGap))
 			
 		}else{
 			
-			leftWall.run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: trimedSecsToMoveGap))
+			trimedSecsToMoveGap = TimeInterval((CGFloat(secsToMoveGap) / self.size.width) * (rightWall.size.width/2 - minimumWallWidth))
 			
+			leftWall.run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: trimedSecsToMoveGap))
 			rightWall.run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: trimedSecsToMoveGap))
 			
 		}
@@ -412,7 +410,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			let leftWall = walls[0]
 			let rightWall = walls[1]
 			
-			self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, willMoveLeft: Bool.random(), isRecovingExistingWalls: true)
+			self.setupWallMotion(leftWall: leftWall, rightWall: rightWall, isRecovingExistingWalls: true)
 		}
 	}
 	
@@ -500,7 +498,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 		}
 		
-		if (currentTime - self.timeOfLastWallUpdate) > 0.04{
+		if (currentTime - self.timeOfLastWallUpdate) > 0.07{
 			
 			for walls in wallss{
 				
@@ -524,7 +522,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 					}
 					
 					wallss.remove(at: i)
-					wallssWillMoveLeft.remove(at: i)
 				}
 				
 				i+=1
@@ -538,22 +535,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		for walls in self.wallss{
 				
 				if walls[0].size.width == CGFloat(minimumWallWidth * 2){
-					print(1)
+					
 					walls[0].run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: secsToMoveGap))
 					
 					walls[1].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: secsToMoveGap))
 					
-					self.wallssWillMoveLeft[i] = false
-					
 					
 				}else if walls[1].size.width == CGFloat(minimumWallWidth * 2){
-					print(2)
+					
 					walls[0].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2), duration: secsToMoveGap))
 					
 					walls[1].run(SKAction.resize(toWidth: (self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2, duration: secsToMoveGap))
-			
-					
-					self.wallssWillMoveLeft[i] = true
 					
 				}
 			

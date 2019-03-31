@@ -12,12 +12,13 @@ import UIKit
 
 var runnerStandardSpeed : CGFloat = 1000
 var wallMoveDownDuration : Double = 10
-var secsToMoveGap : TimeInterval = 4
+var secsToMoveGap : TimeInterval = 5
 let gapDistance : CGFloat = 175
 let minimumWallWidth : CGFloat = 10
 
 public func restoreSpeed(){
     runnerStandardSpeed = 700
     wallMoveDownDuration = 10
-    secsToMoveGap = 4
+    secsToMoveGap = 5
+    
 }
