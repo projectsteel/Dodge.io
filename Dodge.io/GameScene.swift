@@ -150,7 +150,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func setupWallMotion(leftWall: SKSpriteNode, rightWall: SKSpriteNode, isRecovingExistingWalls: Bool){
 		var trimedSecsToMoveGap : TimeInterval = 0
-
+		
 		let directionToMove = Bool.random()
 		
 		if directionToMove{
@@ -533,21 +533,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		var i = 0
 		
 		for walls in self.wallss{
+			
+			var trimedSecsToMoveGap : TimeInterval = 0
+			
+			if walls[0].size.width == CGFloat(minimumWallWidth * 2){
 				
-				if walls[0].size.width == CGFloat(minimumWallWidth * 2){
-					
-					walls[0].run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: secsToMoveGap))
-					
-					walls[1].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: secsToMoveGap))
-					
-					
-				}else if walls[1].size.width == CGFloat(minimumWallWidth * 2){
-					
-					walls[0].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2), duration: secsToMoveGap))
-					
-					walls[1].run(SKAction.resize(toWidth: (self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2, duration: secsToMoveGap))
-					
-				}
+				trimedSecsToMoveGap = TimeInterval((CGFloat(secsToMoveGap) / self.size.width) * (walls[1].size.width/2 - minimumWallWidth))
+			
+				walls[0].run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: secsToMoveGap))
+				
+				walls[1].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: secsToMoveGap))
+				
+				
+			}else if walls[1].size.width == CGFloat(minimumWallWidth * 2){
+				trimedSecsToMoveGap = TimeInterval((CGFloat(secsToMoveGap) / self.size.width) * (walls[0].size.width/2 - minimumWallWidth))
+				
+				walls[0].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2), duration: secsToMoveGap))
+				
+				walls[1].run(SKAction.resize(toWidth: (self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2, duration: secsToMoveGap))
+				
+			}
 			
 			
 			i+=1
