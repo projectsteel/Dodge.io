@@ -11,9 +11,7 @@ import GameplayKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	var superNode = SKNode()
-	
-	var leftBarrier : SKNode?
-	var rightBarrier : SKNode?
+
 	var runner : SKSpriteNode?
 	
 	var wallsCatagory : UInt32 = 0x1 << 1
@@ -46,17 +44,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		NotificationCenter.default.addObserver(self, selector: #selector(willTerminate), name: UIApplication.willTerminateNotification, object: nil)
 		
 		self.physicsWorld.contactDelegate = self
-		
-		self.leftBarrier = self.childNode(withName: "leftBarrier")
-		self.rightBarrier = self.childNode(withName: "rightBarrier")
-		
-		self.leftBarrier?.physicsBody?.categoryBitMask = barrierCatagory
-		self.rightBarrier?.physicsBody?.categoryBitMask = barrierCatagory
-		self.leftBarrier?.physicsBody?.contactTestBitMask = runnerCatagory
-		self.rightBarrier?.physicsBody?.contactTestBitMask = runnerCatagory
-		self.leftBarrier?.physicsBody?.collisionBitMask = runnerCatagory
-		self.rightBarrier?.physicsBody?.collisionBitMask = runnerCatagory
-		
 		
 		self.runner = self.childNode(withName: "runner") as? SKSpriteNode
 		
@@ -111,6 +98,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.addChild(upBarrier)
 		self.addChild(downBarrier)
 		
+		let leftBarrier = SKSpriteNode(color: .red, size: CGSize(width: 10, height: self.size.height))
+		let rightBarrier = SKSpriteNode(color: .red, size: CGSize(width: 10, height: self.size.height))
+		
+		leftBarrier.position = CGPoint(x: (-self.size.width/2) - 5, y: 0)
+		rightBarrier.position = CGPoint(x: self.size.width/2 + 5, y: 0)
+		
+		leftBarrier.physicsBody = SKPhysicsBody(rectangleOf: leftBarrier.size)
+		rightBarrier.physicsBody = SKPhysicsBody(rectangleOf: rightBarrier.size)
+		
+		leftBarrier.physicsBody?.pinned = true
+		rightBarrier.physicsBody?.pinned = true
+		
+		leftBarrier.physicsBody?.categoryBitMask = barrierCatagory
+		rightBarrier.physicsBody?.categoryBitMask = barrierCatagory
+		leftBarrier.physicsBody?.contactTestBitMask = runnerCatagory
+		rightBarrier.physicsBody?.contactTestBitMask = runnerCatagory
+		leftBarrier.physicsBody?.collisionBitMask = runnerCatagory
+		rightBarrier.physicsBody?.collisionBitMask = runnerCatagory
+		
+		leftBarrier.physicsBody?.allowsRotation = false
+		rightBarrier.physicsBody?.allowsRotation = false
+		leftBarrier.physicsBody?.affectedByGravity = false
+		rightBarrier.physicsBody?.affectedByGravity = false
+		leftBarrier.physicsBody?.mass = 10
+		rightBarrier.physicsBody?.mass = 10
+		leftBarrier.physicsBody?.restitution = 0
+		rightBarrier.physicsBody?.restitution = 0
+		
+		self.addChild(leftBarrier)
+		self.addChild(rightBarrier)
 	}
 	
 	@objc func createWall() {
