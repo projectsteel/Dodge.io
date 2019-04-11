@@ -46,11 +46,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.physicsWorld.contactDelegate = self
 		
 		self.runner = self.childNode(withName: "runner") as? SKSpriteNode
+		self.runner = SKSpriteNode(color: UIColor(red: 255, green: 0, blue: 0, alpha: 1), size: CGSize(width: 80, height: 80))
+		self.runner?.position = CGPoint(x: 0, y: (-self.size.height/2) * (1/3))
 		
-		self.runner?.alpha = 0.0
+		self.runner?.physicsBody = SKPhysicsBody(rectangleOf: self.runner!.size)
+		self.runner?.physicsBody?.isDynamic = true
+		self.runner?.physicsBody?.affectedByGravity = false
+		self.runner?.physicsBody?.pinned = false
+		self.runner?.physicsBody?.allowsRotation = false
+		self.runner?.physicsBody?.allowsRotation = false
+		
 		self.runner?.physicsBody?.categoryBitMask = runnerCatagory
 		self.runner?.physicsBody?.contactTestBitMask = wallsCatagory
 		self.runner?.physicsBody?.collisionBitMask = barrierCatagory
+		
+		self.runner?.alpha = 0.0
+		self.runner?.physicsBody?.mass = 0.5
+		self.runner?.physicsBody?.angularDamping = 0.1
+		self.runner?.physicsBody?.friction = 0.2
+		self.runner?.physicsBody?.restitution = 0
+		self.runner?.physicsBody?.linearDamping = 0.1
+		
+		self.addChild(self.runner!)
+		
 		
 		self.slowingDistance = runner!.size.width/5
 		
