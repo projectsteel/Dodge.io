@@ -575,17 +575,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				trimedSecsToMoveGap = TimeInterval((CGFloat(secsToMoveGap) / self.size.width) * (walls[1].size.width/2 - minimumWallWidth))
 			
-				walls[0].run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: secsToMoveGap))
+				walls[0].run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: trimedSecsToMoveGap))
 				
-				walls[1].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: secsToMoveGap))
+				walls[1].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: trimedSecsToMoveGap))
 				
 				
 			}else if walls[1].size.width == CGFloat(minimumWallWidth * 2){
 				trimedSecsToMoveGap = TimeInterval((CGFloat(secsToMoveGap) / self.size.width) * (walls[0].size.width/2 - minimumWallWidth))
 				
-				walls[0].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2), duration: secsToMoveGap))
+				walls[0].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2), duration: trimedSecsToMoveGap))
 				
-				walls[1].run(SKAction.resize(toWidth: (self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2, duration: secsToMoveGap))
+				walls[1].run(SKAction.resize(toWidth: (self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2, duration: trimedSecsToMoveGap))
 				
 			}
 			

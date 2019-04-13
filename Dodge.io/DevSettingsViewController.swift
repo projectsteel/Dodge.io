@@ -16,21 +16,17 @@ class DevSettingsViewController: UIViewController {
     
     @IBAction func setButton(_ sender: Any) {
         
-        var runnerSpeedWasUpdated : Bool = false
-        var wallMoveDownDurationWasUpdated : Bool = false
-       // var differenceInWallResizePerTenthSecWasUpdated : Bool = false
-        
         if let runnerSpeedString = runnerSpeedTextBox.text{
             if let runnerSpeedInt = Int(runnerSpeedString){
                 runnerStandardSpeed = CGFloat(runnerSpeedInt)
-                runnerSpeedWasUpdated = true
+               
             }
         }
        
         if let wallMoveDownDurationString = wallDownDurationTextBox.text{
             if let wallMoveDownDurationDouble = Double(wallMoveDownDurationString){
                 wallMoveDownDuration = wallMoveDownDurationDouble
-                wallMoveDownDurationWasUpdated = true
+               
             }
         }
     
