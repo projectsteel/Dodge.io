@@ -372,7 +372,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.score = 0
 		self.updateScoreLabelToScore()
-		restoreSpeed()
 		
 		self.systemHasPaused = false
 		self.scene?.isPaused = false

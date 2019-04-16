@@ -15,10 +15,3 @@ var wallMoveDownDuration : Double = 10
 var secsToMoveGap : TimeInterval = 5
 let gapDistance : CGFloat = 175
 let minimumWallWidth : CGFloat = 10
-
-public func restoreSpeed(){
-    runnerStandardSpeed = 700
-    wallMoveDownDuration = 10
-    secsToMoveGap = 5
-    
-}
