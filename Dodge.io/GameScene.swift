@@ -32,6 +32,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	var userHasPaused : Bool = false
 	var systemHasPaused : Bool = false
+	var currentTime : TimeInterval = 0.0
+	var timeOfPausing : TimeInterval = 0.0
 	
 	
 	override func didMove(to view: SKView) {
@@ -44,6 +46,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		NotificationCenter.default.addObserver(self, selector: #selector(willTerminate), name: UIApplication.willTerminateNotification, object: nil)
 		
 		self.physicsWorld.contactDelegate = self
+		
+		createRunner()
+		
+		let scoreLabel = SKLabelNode(text: "0")
+		scoreLabel.fontSize = 90
+		scoreLabel.position = CGPoint(x: 0, y: self.frame.height/2 - scoreLabel.frame.height * 2 - 8)
+		
+		self.scoreLabel = scoreLabel
+		self.addChild(self.scoreLabel!)
+		
+		self.setupGame()
+	}
+	
+	func createRunner(){
 		
 		self.runner = self.childNode(withName: "runner") as? SKSpriteNode
 		self.runner = SKSpriteNode(color: UIColor(red: 255, green: 0, blue: 0, alpha: 1), size: CGSize(width: 80, height: 80))
@@ -71,18 +87,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		
 		self.slowingDistance = runner!.size.width/5
-		
-		
-		let scoreLabel = SKLabelNode(text: "0")
-		scoreLabel.fontSize = 90
-		scoreLabel.position = CGPoint(x: 0, y: self.frame.height/2 - scoreLabel.frame.height * 2 - 8)
-		
-		self.scoreLabel = scoreLabel
-		self.addChild(self.scoreLabel!)
-		
-		self.setupGame()
 	}
-	
 	
 	func createBarriers(){
 		
@@ -148,8 +153,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.addChild(rightBarrier)
 	}
 	
-	@objc func createWall() {
-		
+	@objc func createWalls() {
+		//only create if last wall is correct distence away
 		let breakPoint = generateRandomNumber(min: 5, max: self.size.width - (gapDistance + minimumWallWidth))
 		
 		let leftWall = SKSpriteNode(color: .cyan, size: CGSize(width: 2 * breakPoint, height: 30))
@@ -245,7 +250,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				self.score+=1
 				
-				//wallMoveDownDuration -= 0.05
+				secsToMoveGap -= 0.05
 				
 				self.updateScoreLabelToScore()
 			}
@@ -291,15 +296,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		playButton.name = "Play Button"
 		playButton.position = CGPoint(x: 0, y: -300)
 		playButton.size = CGSize(width: 150, height: 150)
-		
 		self.superNode.addChild(playButton)
+		
+		let pauseButton = SKSpriteNode(imageNamed:"pause-button.png")
+		pauseButton.name = "Pause Button"
+		pauseButton.size = CGSize(width: 64, height: 96)
+		pauseButton.position = CGPoint(x: -self.frame.maxX + pauseButton.size.width, y: self.frame.maxY - pauseButton.size.height * 4/3)
+		self.addChild(pauseButton)
 		
 		let bestScoreLabel = SKLabelNode()
 		bestScoreLabel.name = "Best Score Label"
 		bestScoreLabel.position = CGPoint(x: 0, y: 0)
 		bestScoreLabel.fontSize = 70
 		bestScoreLabel.text = "High Score: \(UserDefaults.standard.integer(forKey: "currentRecord"))"
-		
 		self.superNode.addChild(bestScoreLabel)
 		
 		let gameOverLabel =  SKLabelNode()
@@ -372,6 +381,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.score = 0
 		self.updateScoreLabelToScore()
+		restoreSpeed()
 		
 		self.systemHasPaused = false
 		self.scene?.isPaused = false
@@ -381,6 +391,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.scene?.isPaused = true
 		self.userHasPaused = true
+		timeOfPausing = currentTime
 		
 		let gameOverLabel =  SKLabelNode()
 		
@@ -431,6 +442,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		
 		self.scene?.isPaused = false
+		timeOfLastWallGeneration += currentTime - timeOfPausing
 		self.reSetupWallMotion(wallss: walls)
 		self.userHasPaused = false
 		
@@ -474,6 +486,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 		}else{
 			
+			if let touchLocation = touches.first?.location(in: self){
+				
+				let nodesAtLocation = nodes(at: touchLocation)
+				
+				for node in nodesAtLocation{
+					if node.name == "Pause Button"{
+						
+						self.pauseGame()
+						
+					}
+				}
+			}
+			
 			if let runner = self.runner, let touchPointX = touches.first?.previousLocation(in: runner.parent!).x{
 				
 				self.lastTouchPointX = touchPointX
@@ -490,6 +515,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				}
 			}
 		}
+		
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -526,7 +552,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		if (currentTime - self.timeOfLastWallGeneration) >  wallMoveDownDuration/2.5{
 			
-			createWall()
+			createWalls()
 			
 			self.timeOfLastWallGeneration = currentTime
 			
@@ -573,7 +599,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			if walls[0].size.width == CGFloat(minimumWallWidth * 2){
 				
 				trimedSecsToMoveGap = TimeInterval((CGFloat(secsToMoveGap) / self.size.width) * (walls[1].size.width/2 - minimumWallWidth))
-			
+				
 				walls[0].run(SKAction.resize(toWidth:(self.size.width - CGFloat((minimumWallWidth + gapDistance))) * 2 , duration: trimedSecsToMoveGap))
 				
 				walls[1].run(SKAction.resize(toWidth: CGFloat(minimumWallWidth * 2) , duration: trimedSecsToMoveGap))
