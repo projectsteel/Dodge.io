@@ -328,7 +328,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func endGame(){
 		
-		//so it doesnt register a colsion everysecond and make with into a loop
 		self.runner?.physicsBody?.categoryBitMask = 0x0 << 0
 		self.systemHasPaused = true
 		self.superNode.isPaused = true
@@ -373,8 +372,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func resetGame(){
+		
 		superNode.removeAllChildren()
-		wallss.removeAll()
+		self.wallss.removeAll()
+		
+		self.timeOfLastWallGeneration = 0
+		self.timeOfLastWallUpdate = 0
+		self.timeOfLastWallReaping = 0
+		self.timerOfLastWallSideMotion = 0
+		self.speed = 1
 		
 		self.runner?.run(SKAction.fadeIn(withDuration: 0.25))
 		
