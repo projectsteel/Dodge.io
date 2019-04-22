@@ -244,6 +244,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func checkForNewPoints(node: SKSpriteNode){
+		
 		if let runner = self.runner{
 			
 			if ((node.position.y - runner.position.y) < 5) && ((node.position.y - runner.position.y) > -5) {
@@ -251,6 +252,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				self.score+=1
 				
 				secsToMoveGap -= 0.05
+				
 				
 				self.updateScoreLabelToScore()
 			}
@@ -372,6 +374,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	func resetGame(){
 		superNode.removeAllChildren()
+		wallss.removeAll()
 		
 		self.runner?.run(SKAction.fadeIn(withDuration: 0.25))
 		
