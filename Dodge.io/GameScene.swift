@@ -18,11 +18,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	var runnerCatagory : UInt32 = 0x1 << 2
 	var barrierCatagory : UInt32 = 0x1 << 3
 	
-	var timeOfLastWallGeneration : TimeInterval = 0.0
-	var timeOfLastWallUpdate : TimeInterval = 0.0
-	var timeOfLastWallReaping :  TimeInterval = 0.0
-	var timerOfLastWallSideMotion : TimeInterval = 0.0
+	var timeOfLastWallGeneration : Int = 0
+	var timeOfLastWallMoving : Int = 0
+	var timeOfLastWallUpdate : Int = 0
+	var timeOfLastWallReaping : Int = 0
+	var timerOfLastWallSideMotion : Int = 0
+	var timeOfLastWallGenerationThreshold = (wallsGeneratedPerSec) * 60
+	let timeOfLastWallMovingThreshold = 6
+	let timeOfLastWallUpdateThreshold = 0.05 * 60
+	let timeOfLastWallReapingThreshold = 0.2 * 60
+	
 	var wallss : [[SKSpriteNode]] = []
+	var ticNumber : Int = 0
 	
 	var lastTouchPointX : CGFloat?
 	var slowingDistance : CGFloat?
@@ -32,8 +39,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	var userHasPaused : Bool = false
 	var systemHasPaused : Bool = false
-	var currentTime : TimeInterval = 0.0
-	var timeOfPausing : TimeInterval = 0.0
+	var currentTime : Int = 0
+	var timeOfPausing : Int = 0
 	
 	
 	override func didMove(to view: SKView) {
@@ -47,7 +54,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.physicsWorld.contactDelegate = self
 		
-		createRunner()
+		self.createRunner()
+		self.createBarriers()
 		
 		let scoreLabel = SKLabelNode(text: "0")
 		scoreLabel.fontSize = 90
@@ -87,7 +95,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		
 		self.slowingDistance = runner!.size.width/5
-	}
+		print("Hieght = ", self.size.height)
+	} 
 	
 	func createBarriers(){
 		
@@ -209,7 +218,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			
 		}
 		
-		if !isRecovingExistingWalls{
+		/*if !isRecovingExistingWalls{
 			
 			let moveDown = SKAction.moveBy(x: 0, y: -self.size.height - leftWall.frame.height, duration: wallMoveDownDuration)
 			
@@ -224,7 +233,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				rightWall.removeFromParent()
 				
 			}
-		}
+		}*/
 	}
 	
 	func updateWallsPhysicsBodies(nodes: [SKSpriteNode]){
@@ -251,8 +260,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				
 				self.score+=1
 				
-				secsToMoveGap -= 0.05
-				
+				self.speed += 0.5
 				
 				self.updateScoreLabelToScore()
 			}
@@ -288,6 +296,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		self.isPaused = true
 		self.systemHasPaused = true
+		createWalls()
 		
 		if let scoreLabel = self.scoreLabel{
 			scoreLabel.text = ""
@@ -377,10 +386,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		self.wallss.removeAll()
 		
 		self.timeOfLastWallGeneration = 0
+		self.timeOfLastWallMoving = 0
 		self.timeOfLastWallUpdate = 0
 		self.timeOfLastWallReaping = 0
 		self.timerOfLastWallSideMotion = 0
-		self.speed = 1
+		self.speed = 1.0
 		
 		self.runner?.run(SKAction.fadeIn(withDuration: 0.25))
 		
@@ -451,7 +461,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 		
 		self.scene?.isPaused = false
-		timeOfLastWallGeneration += currentTime - timeOfPausing
+		timeOfLastWallGeneration += ticNumber - timeOfPausing
 		self.reSetupWallMotion(wallss: walls)
 		self.userHasPaused = false
 		
@@ -549,6 +559,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	
 	override func update(_ currentTime: TimeInterval) {
 		// Called before each frame is rendered
+		ticNumber += 1
 		
 		if let runner = self.runner, let lastTouchPointX = self.lastTouchPointX, let slowingDistance = self.slowingDistance, let runnerPhysicsBody = self.runner?.physicsBody, runner.physicsBody?.velocity.dx != 0{
 			
@@ -559,15 +570,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 			}
 		}
 		
-		if (currentTime - self.timeOfLastWallGeneration) >  wallMoveDownDuration/2.5{
+		if ticNumber - self.timeOfLastWallMoving > self.timeOfLastWallMovingThreshold{
+			
+			let move = SKAction.move(by: CGVector(dx: 0, dy: -2), duration: 0.1)
+			
+			for walls in wallss{
+				
+				for wall in walls{
+					
+					wall.run(move)
+				}
+			}
+		}
+		if Double(ticNumber - self.timeOfLastWallGeneration) >  self.timeOfLastWallGenerationThreshold{
 			
 			createWalls()
 			
-			self.timeOfLastWallGeneration = currentTime
+			self.timeOfLastWallGeneration = ticNumber
 			
 		}
 		
-		if (currentTime - self.timeOfLastWallUpdate) > 0.07{
+		if Double(ticNumber - self.timeOfLastWallUpdate) > self.timeOfLastWallUpdateThreshold{
 			
 			for walls in wallss{
 				
@@ -576,10 +599,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				self.checkForNewPoints(node: walls[0])
 				
 			}
-			self.timeOfLastWallUpdate = currentTime
+			self.timeOfLastWallUpdate = ticNumber
 		}
 		
-		if (currentTime - self.timeOfLastWallReaping) > 0.2{
+		if Double(ticNumber - self.timeOfLastWallReaping) > 0.2 * 60{
+			
 			var i = 0
 			
 			for walls in wallss{
@@ -596,7 +620,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 				i+=1
 				
 			}
-			self.timeOfLastWallReaping = currentTime
+			self.timeOfLastWallReaping = ticNumber
 		}
 		
 		var i = 0
